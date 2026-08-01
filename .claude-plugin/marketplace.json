@@ -5,8 +5,8 @@
   },
   "plugins": [
     {
-      "name": "trading-skill-v4",
-      "source": "./plugins/trading-skill-v4",
+      "name": "trading-agent",
+      "source": "./plugins/trading-agent",
       "description": "Autonomous Agentic-Account trader (places trades via Robinhood MCP with protective orders, horizon bias, leveraged-ETF screen, and GitHub-backed risk parameters)."
     },
     {
@@ -14,5 +14,8 @@
       "source": "./plugins/trading-report",
       "description": "Read-only Agentic-Account portfolio reporter that publishes a dashboard snapshot to the Trading-Agent repo."
     }
-  ]
+  ],
+  "renames": {
+    "trading-skill-v4": "trading-agent"
+  }
 }
