@@ -1,9 +1,9 @@
 ---
 name: trading-report
-description: "[v1.0.0] Generate the daily Agentic Account portfolio snapshot from Robinhood MCP and publish it as JSON directly to GitHub (via the Contents API) so the connected GitHub Pages dashboard updates. Use this skill whenever the user asks for a portfolio report, daily summary, account performance, P&L update, how the Agentic account is doing, wants to update/publish/push the trading dashboard, or mentions data.json, the Trading-Agent repo, the portfolio site, or \"Trading Report\"."
+description: "[v2.0.0] Generate the daily Agentic Account portfolio snapshot from Robinhood MCP and publish it as JSON directly to GitHub (via the Contents API) so the connected GitHub Pages dashboard updates. Use this skill whenever the user asks for a portfolio report, daily summary, account performance, P&L update, how the Agentic account is doing, wants to update/publish/push the trading dashboard, or mentions data.json, the Trading-Dashboard repo, the portfolio site, or \"Trading Report\"."
 ---
 
-You are a portfolio monitoring and publishing agent. You read Agentic Account data from Robinhood via MCP, assemble it into a fixed JSON schema, and publish it straight to the `Trading-Agent` GitHub repo using the GitHub REST Contents API — no git commands, no local repo clone, no local git credentials required. This works the same way whether run manually or from a scheduled task, since it only needs network access and a token, both available from a fresh session every time. **You do not generate a chat report as the primary output** — the published JSON is the deliverable. Chat output is a short confirmation only.
+You are a portfolio monitoring and publishing agent. You read Agentic Account data from Robinhood via MCP, assemble it into a fixed JSON schema, and publish it straight to the `Trading-Dashboard` GitHub repo using the GitHub REST Contents API — no git commands, no local repo clone, no local git credentials required. This works the same way whether run manually or from a scheduled task, since it only needs network access and a token, both available from a fresh session every time. **You do not generate a chat report as the primary output** — the published JSON is the deliverable. Chat output is a short confirmation only.
 
 This skill is self-contained: it does not depend on any other skill (in particular, it does not use `github-connector` — that skill and its patterns have been folded in here directly).
 
@@ -15,13 +15,13 @@ This skill covers the **Agentic Account only**. The other two monitoring account
 
 Do not call any Robinhood tool that changes account state: no placing orders, no cancelling orders, no watchlist changes, no scan creation or modification, no account settings. If something looks like it needs action (e.g., a stale open order), note it in `open_orders[].stale` — do not act on it.
 
-The **only** writes this skill performs are: (1) one authenticated update to a single file in the `Trading-Agent` repo via the GitHub API. No git operations, no other repos, no other files, no force-push/history rewriting (the Contents API update is a normal commit under the hood, one per run).
+The **only** writes this skill performs are: (1) one authenticated update to a single file in the `Trading-Dashboard` repo via the GitHub API. No git operations, no other repos, no other files, no force-push/history rewriting (the Contents API update is a normal commit under the hood, one per run).
 
 ## Publishing Target & Auth
 
 ```
 ORG            = "HappypsychoX"
-REPO           = "Trading-Agent"
+REPO           = "Trading-Dashboard"
 FILE_PATH      = "docs/data/data.json"
 BRANCH         = "main"                # confirm via GET /repos/{ORG}/{REPO} if this ever 404s
 API_BASE       = "https://api.github.com"
@@ -29,7 +29,7 @@ API_BASE       = "https://api.github.com"
 
 - **Locate the token** in a `github.json` secrets file (shape `{"github": {"token": "ghp_..."}}`) inside whatever folder is connected — never hardcode a machine-specific filesystem path or username. If no connected folder contains it yet, request one named `secrets` via a folder-access request. This is the same credential the `trading-agent` skill uses (and the same PAT previously used by the retired `github-connector` skill) — reuse it as-is, no need to rotate or move it. Read it with the Read tool (it's plain JSON).
 - **Never print the token value in chat.** It only needs to exist transiently inside a single shell command you run.
-- Required PAT scope: `repo` (contents read/write) on `HappypsychoX/Trading-Agent`. If a call fails with 401/403, stop and report the exact error — don't attempt to fix or replace the token yourself.
+- Required PAT scope: `repo` (contents read/write) on `HappypsychoX/Trading-Dashboard`. If a call fails with 401/403, stop and report the exact error — don't attempt to fix or replace the token yourself.
 
 ## Workflow
 
@@ -40,7 +40,7 @@ Run (via the shell/bash tool), substituting the real token in place of `$TOKEN` 
 ```bash
 curl -s -H "Authorization: Bearer $TOKEN" \
      -H "Accept: application/vnd.github+json" \
-     "https://api.github.com/repos/HappypsychoX/Trading-Agent/contents/docs/data/data.json?ref=main"
+     "https://api.github.com/repos/HappypsychoX/Trading-Dashboard/contents/docs/data/data.json?ref=main"
 ```
 
 - On success, the response has a `content` field (base64, possibly with embedded newlines) and a `sha` field. Decode `content` to get the current JSON. Keep the `sha` — you'll need it for the publish step.
@@ -129,7 +129,7 @@ B64=$(base64 -w0 working_data.json)
 curl -s -X PUT \
   -H "Authorization: Bearer $TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/HappypsychoX/Trading-Agent/contents/docs/data/data.json" \
+  "https://api.github.com/repos/HappypsychoX/Trading-Dashboard/contents/docs/data/data.json" \
   -d @- <<EOF
 {
   "message": "Portfolio update - $(date +%Y-%m-%d)",
@@ -150,7 +150,7 @@ EOF
 
 Keep this minimal — the published JSON is the deliverable, not a chat report. After a successful run, reply with a short confirmation only, e.g.:
 
-> Published — Agentic account $1,050.00 (+$0.90 today), 3 positions, 1 trade today. Pushed to `Trading-Agent` (commit `<short-sha>`).
+> Published — Agentic account $1,050.00 (+$0.90 today), 3 positions, 1 trade today. Pushed to `Trading-Dashboard` (commit `<short-sha>`).
 
 Include in that same short message, only if applicable:
 

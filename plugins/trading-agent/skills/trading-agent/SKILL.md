@@ -1,6 +1,6 @@
 ---
 name: "trading-agent"
-description: "[v1.0.0] Execute profitable trades in your designated Agentic Account using Robinhood MCP, with standing protective orders (stop-loss or take-profit) on positions, a tunable HORIZON_BIAS scale between short-term trading and long-term holding, a screen that blocks new leveraged/inverse ETF positions (e.g. TQQQ, SQQQ, SOXL), a GitHub-backed default risk parameter config (config/risk-parameters.json in HappypsychoX/Trading-Agent, with hardcoded fallback), and a cross-session note that carries reasoning and goals forward to tomorrow. Use it whenever the user wants to run the trading agent, execute trades, let Claude trade autonomously, start an agentic trading session, asks Claude to buy/sell stocks in the Agentic Account, or specifically mentions protective/stop-loss/take-profit orders, horizon bias, leveraged ETF rules, risk parameters, or wants the agent to remember its reasoning between sessions. Also triggers on the legacy names \"V4\", \"trading skill v4\", and \"trading-skill-v4\"."
+description: "[v2.0.0] Execute profitable trades in your designated Agentic Account using Robinhood MCP, with standing protective orders (stop-loss or take-profit) on positions, a tunable HORIZON_BIAS scale between short-term trading and long-term holding, a screen that blocks new leveraged/inverse ETF positions (e.g. TQQQ, SQQQ, SOXL), a GitHub-backed default risk parameter config (config/risk-parameters.json in HappypsychoX/Trading-Dashboard, with hardcoded fallback), and a cross-session note that carries reasoning and goals forward to tomorrow. Use it whenever the user wants to run the trading agent, execute trades, let Claude trade autonomously, start an agentic trading session, asks Claude to buy/sell stocks in the Agentic Account, or specifically mentions protective/stop-loss/take-profit orders, horizon bias, leveraged ETF rules, risk parameters, or wants the agent to remember its reasoning between sessions. Also triggers on the legacy names \"V4\", \"trading skill v4\", and \"trading-skill-v4\"."
 ---
 
 ## Division of Responsibility
@@ -9,13 +9,13 @@ This skill defines the trading framework and **default parameters**. The invokin
 
 ## Loading Default Risk Parameters (do this first, before Step 0)
 
-The table in "Default Risk Parameters" below is the **hardcoded fallback**. The authoritative source is `config/risk-parameters.json` in the `HappypsychoX/Trading-Agent` GitHub repo (branch `main`), published by the Default Risk Parameters dashboard artifact when the user tunes settings. Fetch it fresh every session — never reuse a value you fetched in a prior session, and never assume it hasn't changed since last time.
+The table in "Default Risk Parameters" below is the **hardcoded fallback**. The authoritative source is `config/risk-parameters.json` in the `HappypsychoX/Trading-Dashboard` GitHub repo (branch `main`), published by the Default Risk Parameters dashboard artifact when the user tunes settings. Fetch it fresh every session — never reuse a value you fetched in a prior session, and never assume it hasn't changed since last time.
 
 1. **Get a GitHub token.** Look for a `github.json` secrets file (shape `{"github": {"token": "ghp_..."}}`) in a connected folder — this is the same credential the `trading-report` skill uses. If you don't have a connected folder containing it yet, you may request one named `secrets` via folder-access request. If none exists or isn't reachable (e.g. running unattended with no one to grant access), skip straight to step 4 (hardcoded fallback) — do not block the session over this.
 2. **Fetch the file** via the shell:
    ```bash
    curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
-     "https://api.github.com/repos/HappypsychoX/Trading-Agent/contents/config/risk-parameters.json?ref=main"
+     "https://api.github.com/repos/HappypsychoX/Trading-Dashboard/contents/config/risk-parameters.json?ref=main"
    ```
    Decode the base64 `content` field to get the JSON.
 3. **Validate and apply, field by field.** Expected keys and how they map to the parameters below:
