@@ -37,7 +37,7 @@ Both skills operate the same external trading system, so a change to shared conv
 
 Shared infrastructure both skills assume:
 - **Robinhood MCP** for account/market data (and, for trading-agent only, order placement).
-- **GitHub REST Contents API** — writes/reads go to the `HappypsychoX/Trading-Agent` repo, `main` branch, **not** to this repo. Skills use the raw REST API (`curl`), never `git` clones or local checkouts, so they run identically from a fresh unattended session.
+- **GitHub REST Contents API** — writes/reads go to the `HappypsychoX/Trading-Dashboard` repo, `main` branch, **not** to this repo. Skills use the raw REST API (`curl`), never `git` clones or local checkouts, so they run identically from a fresh unattended session.
 - **Token** read from a `github.json` secrets file (`{"github": {"token": "ghp_..."}}`). Never print the token in chat.
 - **Scope: the "Agentic Account" only.** Other Robinhood accounts must never appear in queries or output.
 
