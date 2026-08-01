@@ -1,0 +1,15 @@
+{
+  "name": "trading-report",
+  "description": "Read-only Agentic-Account portfolio reporter: reads Robinhood via MCP and publishes a dashboard snapshot (data.json) to the Trading-Agent repo via the GitHub Contents API. Never places or mutates orders.",
+  "version": "0.1.0",
+  "author": {
+    "name": "HappypsychoX"
+  },
+  "keywords": [
+    "trading",
+    "robinhood",
+    "portfolio",
+    "reporting",
+    "read-only"
+  ]
+}

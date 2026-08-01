@@ -1,0 +1,18 @@
+{
+  "name": "skills-marketplace",
+  "owner": {
+    "name": "HappypsychoX"
+  },
+  "plugins": [
+    {
+      "name": "trading-skill-v4",
+      "source": "./plugins/trading-skill-v4",
+      "description": "Autonomous Agentic-Account trader (places trades via Robinhood MCP with protective orders, horizon bias, leveraged-ETF screen, and GitHub-backed risk parameters)."
+    },
+    {
+      "name": "trading-report",
+      "source": "./plugins/trading-report",
+      "description": "Read-only Agentic-Account portfolio reporter that publishes a dashboard snapshot to the Trading-Agent repo."
+    }
+  ]
+}

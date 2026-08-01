@@ -4,30 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A collection ("marketplace") of packaged Claude skills, one `.skill` file per skill. There is no application, build system, or test suite — the deliverables are the `.skill` archives themselves.
+A collection ("marketplace") of packaged Claude skills, shipped as a **Claude Code plugin marketplace** (`.claude-plugin/marketplace.json` + `plugins/`) and consumed via `/plugin`. There is no application, build system, or test suite — the deliverables are the skills themselves.
 
-A `.skill` file is a **ZIP archive** whose single entry is `<skill-name>/SKILL.md`. `SKILL.md` is Markdown with a YAML frontmatter block (`name`, `description`) followed by the skill's instruction body. The `description` is what a Claude agent matches against to decide when to invoke the skill, so it is written as a long trigger-phrase list, not prose.
+Each skill lives as a plain `SKILL.md`: Markdown with a YAML frontmatter block (`name`, `description`) followed by the skill's instruction body. The `description` is what a Claude agent matches against to decide when to invoke the skill, so it is written as a long trigger-phrase list, not prose.
 
-## Working with `.skill` files
+## Plugin marketplace layout
 
-These are binary (ZIP) — you cannot Read or Edit them directly. Extract, edit the inner `SKILL.md`, then re-zip.
-
-Inspect an archive's contents:
-```bash
-unzip -l trading-skill-v4.skill
+```
+.claude-plugin/marketplace.json        # marketplace manifest (name, owner, plugins[])
+plugins/<plugin-name>/
+  .claude-plugin/plugin.json           # plugin manifest (name required)
+  skills/<skill-name>/SKILL.md         # unpacked skills, auto-discovered
 ```
 
-Extract to inspect/edit the `SKILL.md`:
+Each skill ships as its **own** plugin so they can be installed independently — `trading-skill-v4` (trades) and `trading-report` (read-only), matching the read/write split of the live system (see below). By convention each plugin holds a single skill of the same name. Skills under `skills/` are auto-discovered — they are not listed in `plugin.json`. A plugin `source` in `marketplace.json` is a relative path that must start with `./` and resolves from the repo root.
+
+Users install a plugin with:
 ```bash
-unzip -o trading-skill-v4.skill -d ./_work
+/plugin marketplace add HappypsychoX/Skills-Marketplace
+/plugin install trading-skill-v4@skills-marketplace
+/plugin install trading-report@skills-marketplace
 ```
 
-Repackage after editing (the archive path inside the zip must stay `<skill-name>/SKILL.md`):
-```bash
-cd ./_work && zip -r ../trading-skill-v4.skill trading-skill-v4/SKILL.md
-```
-
-When asked to "change a skill", the edit almost always belongs in the inner `SKILL.md`, not in any file at the repo root.
+When asked to "change a skill", the edit belongs in that skill's `plugins/<plugin-name>/skills/<skill-name>/SKILL.md` — a plain Markdown file you can Read and Edit directly. (This repo used to also ship each skill as a `.skill` ZIP archive at the root; those were removed once the unpacked `SKILL.md` files became the single source of truth.)
 
 ## The two current skills share one live system
 
