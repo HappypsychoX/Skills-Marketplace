@@ -38,4 +38,9 @@ Every skill carries a SemVer version as a bracketed `[vMAJOR.MINOR.PATCH]` prefi
 - **MINOR** — a backward-compatible capability or new trigger phrases.
 - **PATCH** — wording, clarifications, or instruction fixes with no behavioral change.
 
+Each skill also keeps **its own** [Keep a Changelog](https://keepachangelog.com/)-style `CHANGELOG.md` next to its `SKILL.md`, and every version bump adds an entry in the same commit:
+
+- [`trading-agent` changelog](plugins/trading-agent/skills/trading-agent/CHANGELOG.md)
+- [`trading-report` changelog](plugins/trading-report/skills/trading-report/CHANGELOG.md)
+
 See [CLAUDE.md](CLAUDE.md) for the full conventions.
