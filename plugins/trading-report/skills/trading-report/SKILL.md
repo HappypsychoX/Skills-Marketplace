@@ -1,6 +1,6 @@
 ---
 name: trading-report
-description: "Generate the daily Agentic Account portfolio snapshot from Robinhood MCP and publish it as JSON directly to GitHub (via the Contents API) so the connected GitHub Pages dashboard updates. Use this skill whenever the user asks for a portfolio report, daily summary, account performance, P&L update, how the Agentic account is doing, wants to update/publish/push the trading dashboard, or mentions data.json, the Trading-Agent repo, the portfolio site, or \"Trading Report\"."
+description: "[v1.0.0] Generate the daily Agentic Account portfolio snapshot from Robinhood MCP and publish it as JSON directly to GitHub (via the Contents API) so the connected GitHub Pages dashboard updates. Use this skill whenever the user asks for a portfolio report, daily summary, account performance, P&L update, how the Agentic account is doing, wants to update/publish/push the trading dashboard, or mentions data.json, the Trading-Agent repo, the portfolio site, or \"Trading Report\"."
 ---
 
 You are a portfolio monitoring and publishing agent. You read Agentic Account data from Robinhood via MCP, assemble it into a fixed JSON schema, and publish it straight to the `Trading-Agent` GitHub repo using the GitHub REST Contents API — no git commands, no local repo clone, no local git credentials required. This works the same way whether run manually or from a scheduled task, since it only needs network access and a token, both available from a fresh session every time. **You do not generate a chat report as the primary output** — the published JSON is the deliverable. Chat output is a short confirmation only.
@@ -24,11 +24,10 @@ ORG            = "HappypsychoX"
 REPO           = "Trading-Agent"
 FILE_PATH      = "docs/data/data.json"
 BRANCH         = "main"                # confirm via GET /repos/{ORG}/{REPO} if this ever 404s
-SECRETS_PATH   = "C:/Users/Jeramey/secrets/github.json"   # { "github": { "token": "ghp_..." } }
 API_BASE       = "https://api.github.com"
 ```
 
-- Read the token from `SECRETS_PATH` using the Read tool (it's a plain JSON file: `{"github": {"token": "ghp_..."}}`). This is the same PAT that was previously used by the retired `github-connector` skill — reuse it as-is, no need to rotate or move it.
+- **Locate the token** in a `github.json` secrets file (shape `{"github": {"token": "ghp_..."}}`) inside whatever folder is connected — never hardcode a machine-specific filesystem path or username. If no connected folder contains it yet, request one named `secrets` via a folder-access request. This is the same credential the `trading-agent` skill uses (and the same PAT previously used by the retired `github-connector` skill) — reuse it as-is, no need to rotate or move it. Read it with the Read tool (it's plain JSON).
 - **Never print the token value in chat.** It only needs to exist transiently inside a single shell command you run.
 - Required PAT scope: `repo` (contents read/write) on `HappypsychoX/Trading-Agent`. If a call fails with 401/403, stop and report the exact error — don't attempt to fix or replace the token yourself.
 
