@@ -65,6 +65,27 @@ The leading `^\[v\d+\.\d+\.\d+\]` tag is visually distinct, regex-updatable, and
 
 **Caveat:** this lockstep holds only while it's one skill per plugin. If a plugin ever bundles multiple skills, switch models — `plugin.json` `version` becomes a package-level rollup (or omit it to fall back to the git commit SHA) and each skill keeps its own independent description version. Do not apply lockstep to a multi-skill plugin.
 
+### Skill changelog
+
+Each skill keeps **its own** `CHANGELOG.md` next to its `SKILL.md`:
+
+```
+plugins/<plugin-name>/skills/<skill-name>/CHANGELOG.md
+```
+
+One changelog per skill — never a single repo-wide changelog — so a skill's history travels with the skill and matches the one-skill-per-plugin, install-independently model.
+
+**Every version bump adds a changelog entry in the same commit as the `SKILL.md`/`plugin.json` change.** No version moves without a corresponding entry. Format ([Keep a Changelog](https://keepachangelog.com/) style, newest first):
+
+```markdown
+## [X.Y.Z] — YYYY-MM-DD
+- **Changed/Added/Removed/Fixed:** <one line per change>
+```
+
+- The heading version must equal the new `[vX.Y.Z]` description tag and `plugin.json` `version` — all three move together (see versioning above).
+- Use the bump-impact label as the group: MAJOR changes go under **Changed**/**Removed**, MINOR under **Added**/**Changed**, PATCH under **Fixed**/**Changed**.
+- Keep entries user-facing: describe what the skill now does differently, not the wording diff.
+
 - **Never hardcode a machine-specific filesystem path or username** in skill bodies — locate secrets via whatever folder is connected, so the same skill text runs across different PCs. (Note: some existing skills still contain absolute `C:/Users/...` paths; prefer the connected-folder pattern over copying those.)
 - Keep the **read-only vs. write** boundary explicit and intact — `trading-report` must never place/cancel orders or mutate account state; trading-agent is the only skill that trades.
 - The `description` frontmatter is a triggering surface: when adding capabilities, extend its trigger phrases rather than shortening it.
