@@ -1,0 +1,13 @@
+{
+  "name": "skills-marketplace",
+  "owner": {
+    "name": "HappypsychoX"
+  },
+  "plugins": [
+    {
+      "name": "trading",
+      "source": "./plugins/trading",
+      "description": "Autonomous Robinhood trading agent (v4) plus the read-only portfolio reporting/dashboard publisher, scoped to the Agentic Account."
+    }
+  ]
+}

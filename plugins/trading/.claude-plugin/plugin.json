@@ -1,0 +1,14 @@
+{
+  "name": "trading",
+  "description": "Agentic-Account trading skills: the v4 autonomous trader (places trades via Robinhood MCP with protective orders, horizon bias, and GitHub-backed risk parameters) and the read-only portfolio reporter (publishes a dashboard snapshot to the Trading-Agent repo).",
+  "version": "0.1.0",
+  "author": {
+    "name": "HappypsychoX"
+  },
+  "keywords": [
+    "trading",
+    "robinhood",
+    "portfolio",
+    "agentic-account"
+  ]
+}

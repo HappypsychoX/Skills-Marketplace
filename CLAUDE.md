@@ -4,9 +4,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A collection ("marketplace") of packaged Claude skills, one `.skill` file per skill. There is no application, build system, or test suite — the deliverables are the `.skill` archives themselves.
+A collection ("marketplace") of packaged Claude skills. There is no application, build system, or test suite — the deliverables are the skills themselves, shipped two ways:
+
+1. **A Claude Code plugin marketplace** (`.claude-plugin/marketplace.json` + `plugins/`) — the installable form, consumed via `/plugin`.
+2. **Standalone `.skill` archives** at the repo root — the older packaged form.
 
 A `.skill` file is a **ZIP archive** whose single entry is `<skill-name>/SKILL.md`. `SKILL.md` is Markdown with a YAML frontmatter block (`name`, `description`) followed by the skill's instruction body. The `description` is what a Claude agent matches against to decide when to invoke the skill, so it is written as a long trigger-phrase list, not prose.
+
+## Plugin marketplace layout
+
+```
+.claude-plugin/marketplace.json        # marketplace manifest (name, owner, plugins[])
+plugins/trading/
+  .claude-plugin/plugin.json           # plugin manifest (name required)
+  skills/<skill-name>/SKILL.md         # unpacked skills, auto-discovered
+```
+
+Both trading skills are bundled into the single **`trading`** plugin because they are two halves of one live system (see below). Skills under `skills/` are auto-discovered — they are not listed in `plugin.json`. A plugin `source` in `marketplace.json` is a relative path that must start with `./` and resolves from the repo root.
+
+Users install with:
+```bash
+/plugin marketplace add HappypsychoX/Skills-Marketplace
+/plugin install trading@skills-marketplace
+```
+
+**The unpacked `plugins/trading/skills/<name>/SKILL.md` files are the source of truth.** The root `.skill` archives are the same content re-zipped; if you edit a skill, update the unpacked `SKILL.md` and re-sync the matching `.skill` archive so the two forms don't drift.
 
 ## Working with `.skill` files
 
