@@ -15,17 +15,18 @@ A `.skill` file is a **ZIP archive** whose single entry is `<skill-name>/SKILL.m
 
 ```
 .claude-plugin/marketplace.json        # marketplace manifest (name, owner, plugins[])
-plugins/trading/
+plugins/<plugin-name>/
   .claude-plugin/plugin.json           # plugin manifest (name required)
   skills/<skill-name>/SKILL.md         # unpacked skills, auto-discovered
 ```
 
-Both trading skills are bundled into the single **`trading`** plugin because they are two halves of one live system (see below). Skills under `skills/` are auto-discovered — they are not listed in `plugin.json`. A plugin `source` in `marketplace.json` is a relative path that must start with `./` and resolves from the repo root.
+Each skill ships as its **own** plugin so they can be installed independently — `trading-skill-v4` (trades) and `trading-report` (read-only), matching the read/write split of the live system (see below). By convention each plugin holds a single skill of the same name. Skills under `skills/` are auto-discovered — they are not listed in `plugin.json`. A plugin `source` in `marketplace.json` is a relative path that must start with `./` and resolves from the repo root.
 
-Users install with:
+Users install a plugin with:
 ```bash
 /plugin marketplace add HappypsychoX/Skills-Marketplace
-/plugin install trading@skills-marketplace
+/plugin install trading-skill-v4@skills-marketplace
+/plugin install trading-report@skills-marketplace
 ```
 
 **The unpacked `plugins/trading/skills/<name>/SKILL.md` files are the source of truth.** The root `.skill` archives are the same content re-zipped; if you edit a skill, update the unpacked `SKILL.md` and re-sync the matching `.skill` archive so the two forms don't drift.
