@@ -4,12 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A collection ("marketplace") of packaged Claude skills. There is no application, build system, or test suite — the deliverables are the skills themselves, shipped two ways:
+A collection ("marketplace") of packaged Claude skills, shipped as a **Claude Code plugin marketplace** (`.claude-plugin/marketplace.json` + `plugins/`) and consumed via `/plugin`. There is no application, build system, or test suite — the deliverables are the skills themselves.
 
-1. **A Claude Code plugin marketplace** (`.claude-plugin/marketplace.json` + `plugins/`) — the installable form, consumed via `/plugin`.
-2. **Standalone `.skill` archives** at the repo root — the older packaged form.
-
-A `.skill` file is a **ZIP archive** whose single entry is `<skill-name>/SKILL.md`. `SKILL.md` is Markdown with a YAML frontmatter block (`name`, `description`) followed by the skill's instruction body. The `description` is what a Claude agent matches against to decide when to invoke the skill, so it is written as a long trigger-phrase list, not prose.
+Each skill lives as a plain `SKILL.md`: Markdown with a YAML frontmatter block (`name`, `description`) followed by the skill's instruction body. The `description` is what a Claude agent matches against to decide when to invoke the skill, so it is written as a long trigger-phrase list, not prose.
 
 ## Plugin marketplace layout
 
@@ -29,28 +26,7 @@ Users install a plugin with:
 /plugin install trading-report@skills-marketplace
 ```
 
-**The unpacked `plugins/trading/skills/<name>/SKILL.md` files are the source of truth.** The root `.skill` archives are the same content re-zipped; if you edit a skill, update the unpacked `SKILL.md` and re-sync the matching `.skill` archive so the two forms don't drift.
-
-## Working with `.skill` files
-
-These are binary (ZIP) — you cannot Read or Edit them directly. Extract, edit the inner `SKILL.md`, then re-zip.
-
-Inspect an archive's contents:
-```bash
-unzip -l trading-skill-v4.skill
-```
-
-Extract to inspect/edit the `SKILL.md`:
-```bash
-unzip -o trading-skill-v4.skill -d ./_work
-```
-
-Repackage after editing (the archive path inside the zip must stay `<skill-name>/SKILL.md`):
-```bash
-cd ./_work && zip -r ../trading-skill-v4.skill trading-skill-v4/SKILL.md
-```
-
-When asked to "change a skill", the edit almost always belongs in the inner `SKILL.md`, not in any file at the repo root.
+When asked to "change a skill", the edit belongs in that skill's `plugins/<plugin-name>/skills/<skill-name>/SKILL.md` — a plain Markdown file you can Read and Edit directly. (This repo used to also ship each skill as a `.skill` ZIP archive at the root; those were removed once the unpacked `SKILL.md` files became the single source of truth.)
 
 ## The two current skills share one live system
 
