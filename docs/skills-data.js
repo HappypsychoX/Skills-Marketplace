@@ -10,6 +10,7 @@ export const SKILLS = [
     icon: "trendingUp",
     repo: "HappypsychoX/trading-agent",
     description: "Autonomously trade the Agentic Account via the Robinhood MCP.",
+    disclaimer: "Under active development — expect frequent breaking changes between versions. This is the only skill that places live trades: it acts on a real brokerage account and can lose real money. Use entirely at your own risk. Nothing it does is financial advice.",
     longDescription: "Trading Agent runs an autonomous trading session against your designated Agentic Account: it reads market and account data through the Robinhood MCP, places trades, and attaches a standing protective order — stop-loss or take-profit — to each position. A tunable horizon bias slides it between short-term trading and long-term holding, a screen blocks new leveraged and inverse ETFs, and it pulls risk parameters from a GitHub-backed config each session, carrying a note forward to the next run.",
     install: "/plugin install trading-agent@skills-marketplace",
     triggers: "Kicks in when you ask Claude to run the trading agent, execute trades, trade autonomously, start an agentic trading session, or buy/sell stocks in the Agentic Account — and whenever you mention protective/stop-loss/take-profit orders, horizon bias, the leveraged-ETF rules, risk parameters, or the trading-config file.",
