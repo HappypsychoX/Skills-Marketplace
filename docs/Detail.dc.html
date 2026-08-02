@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill — Skills Marketplace</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/modernist-82fdc633-58c0-4a96-bede-ad6248c83922/styles.css">
+  <script src="_ds/modernist-82fdc633-58c0-4a96-bede-ad6248c83922/_ds_bundle.js"></script>
+  <style>
+    a { color: var(--color-accent-700); }
+    a:hover { color: var(--color-accent); }
+    body { margin: 0; text-wrap: pretty; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 72px); }
+    .nav { padding-inline: max(clamp(20px, 5vw, 72px), calc((100% - 1120px) / 2 + clamp(20px, 5vw, 72px))); }
+    .nav a { color: color-mix(in srgb, var(--color-text) 70%, transparent); }
+    .nav a:hover { color: var(--color-accent); }
+    .rule2 { height: 2px; border: 0; margin: 0; background: var(--color-divider); }
+    .kicker { display: block; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700); margin: 0 0 16px; }
+    .back { display: block; font-size: 14px; margin: 32px 0 24px; text-decoration: none; color: color-mix(in srgb, var(--color-text) 70%, transparent); }
+    .back:hover { color: var(--color-accent); }
+    .header { display: flex; gap: 20px; align-items: flex-start; padding-bottom: 40px; }
+    .icon-box { flex: none; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--color-divider); color: var(--color-accent-700); }
+    .h-titlerow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .h-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: clamp(30px, 4vw, 42px); letter-spacing: -0.015em; margin: 0 0 10px; }
+    .h-desc { font-size: 17px; line-height: 27px; max-width: 56ch; color: color-mix(in srgb, var(--color-text) 78%, transparent); margin: 0; }
+    .h-actions { display: flex; gap: 10px; align-items: center; margin-top: 16px; }
+    .section { padding: 40px 0; }
+    .section-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 22px; margin: 0 0 16px; }
+    .section p { font-size: 15.5px; line-height: 27px; max-width: 62ch; color: color-mix(in srgb, var(--color-text) 80%, transparent); margin: 0; }
+    .code-block { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; line-height: 1.6; background: var(--color-neutral-100); border: 2px solid var(--color-divider); padding: 16px 18px; margin: 0 0 12px; overflow-x: auto; }
+    .code-block .prompt { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+    .quote-block { font-size: 17px; line-height: 27px; font-style: italic; border-left: 2px solid var(--color-divider); padding-left: 20px; margin: 0 0 16px; max-width: 58ch; }
+    footer { padding: 32px 0 48px; font-size: 13px; color: color-mix(in srgb, var(--color-text) 70%, transparent); }
+  </style>
+</helmet>
+<nav class="nav">
+  <span class="nav-brand">Skills Marketplace</span>
+  <a href="https://github.com/HappypsychoX/Skills-Marketplace" target="_blank" rel="noopener">GitHub</a>
+</nav>
+<div class="wrap">
+  <a class="back" href="Landing.dc.html">← All skills</a>
+  <div class="header">
+    <div class="icon-box">{{ skill.icon }}</div>
+    <div>
+      <span class="kicker">Skill</span>
+      <div class="h-titlerow">
+        <h1 class="h-title">{{ skill.name }}</h1>
+        <span class="tag tag-outline">{{ skill.access }}</span>
+      </div>
+      <p class="h-desc">{{ skill.description }}</p>
+      <div class="h-actions">
+        <a class="btn btn-primary" href="{{ skill.githubUrl }}" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+    </div>
+  </div>
+  <hr class="rule2">
+  <section class="section">
+    <h2 class="section-title">Description</h2>
+    <p>{{ skill.longDescription }}</p>
+  </section>
+  <hr class="rule2">
+  <section class="section">
+    <h2 class="section-title">Install</h2>
+    <div class="code-block"><span class="prompt">$ </span>{{ skill.install }}</div>
+    <p>Once installed, Claude uses this skill automatically whenever a conversation calls for it — no need to mention it by name.</p>
+  </section>
+  <hr class="rule2">
+  <section class="section">
+    <h2 class="section-title">Usage</h2>
+    <p style="margin-bottom:14px">{{ skill.usageTitle }}</p>
+    <blockquote class="quote-block">{{ skill.usagePrompt }}</blockquote>
+    <p>{{ skill.usageNote }}</p>
+  </section>
+</div>
+<div class="wrap">
+  <footer>Part of the <a href="Landing.dc.html">Skills Marketplace</a> — installed independently via <code>/plugin</code>. This skill lives in its own repo.</footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { skill: null };
+
+  async componentDidMount() {
+    const { SKILLS, ICON_SHAPES } = await import('./skills-data.js');
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('skill') || SKILLS[0].id;
+    const skill = SKILLS.find(s => s.id === id) || SKILLS[0];
+    const shapes = ICON_SHAPES[skill.icon] || [];
+    const icon = React.createElement(
+      'svg',
+      { width: 26, height: 26, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' },
+      shapes.map((s, i) => React.createElement(s.tag, { key: i, ...s.attrs }))
+    );
+    this.setState({ skill: { ...skill, icon, githubUrl: 'https://github.com/' + skill.repo } });
+  }
+
+  renderVals() {
+    return { skill: this.state.skill || { name: '', description: '', longDescription: '', install: '', usageTitle: '', usagePrompt: '', usageNote: '', access: '', githubUrl: '#', icon: null } };
+  }
+}
+
+</script>
+</body>
+</html>
