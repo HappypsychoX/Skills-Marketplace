@@ -22,6 +22,8 @@
   #fallback .fb-skill p { margin: 0 0 12px; color: #333; line-height: 1.55; max-width: 62ch; }
   #fallback code { font-family: ui-monospace, Menlo, monospace; font-size: 13px; background: rgba(0,0,0,.06); padding: 2px 6px; border-radius: 3px; }
   #fallback a { color: #b3491f; }
+  #fallback .fb-disclaimer { margin: 0 0 12px; padding: 12px 14px; border-left: 4px solid #b3491f; background: rgba(179,73,31,.07); color: #5c2410; font-size: 14px; line-height: 1.5; max-width: 62ch; }
+  #fallback .fb-disclaimer strong { text-transform: uppercase; letter-spacing: .06em; font-size: 12px; }
 </style>
 <noscript>
   <style>
@@ -50,6 +52,10 @@
     .back { display: block; font-size: 14px; margin: 32px 0 24px; text-decoration: none; color: color-mix(in srgb, var(--color-text) 70%, transparent); }
     .back:hover { color: var(--color-accent); }
     .header { display: flex; gap: 20px; align-items: flex-start; padding-bottom: 40px; }
+    .callout { display: flex; gap: 14px; margin: 32px 0 0; padding: 18px 20px; border: 2px solid var(--color-accent-700); border-left-width: 5px; background: color-mix(in srgb, var(--color-accent-700) 8%, transparent); }
+    .callout-icon { flex: none; color: var(--color-accent-700); line-height: 0; margin-top: 2px; }
+    .callout-body { font-size: 15px; line-height: 25px; color: color-mix(in srgb, var(--color-text) 85%, transparent); max-width: 62ch; }
+    .callout-label { display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--color-accent-700); margin: 0 0 4px; }
     .icon-box { flex: none; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--color-divider); color: var(--color-accent-700); }
     .h-titlerow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .h-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: clamp(30px, 4vw, 42px); letter-spacing: -0.015em; margin: 0 0 10px; }
@@ -87,6 +93,14 @@
       </div>
     </div>
   </div>
+  <sc-if value="{{ skill.disclaimer }}">
+    <div class="callout" role="note">
+      <span class="callout-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a1.5 1.5 0 0 0 1.29 2.25h17.78A1.5 1.5 0 0 0 22.18 18L13.71 3.86a1.5 1.5 0 0 0-2.42 0Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      </span>
+      <div class="callout-body"><span class="callout-label">Please read</span>{{ skill.disclaimer }}</div>
+    </div>
+  </sc-if>
   <hr class="rule2">
   <section class="section">
     <h2 class="section-title">Description</h2>
@@ -140,6 +154,7 @@
   <p class="fb-install">First add the marketplace: <code>/plugin marketplace add HappypsychoX/Skills-Marketplace</code></p>
   <div class="fb-skill">
     <h2>Trading Agent</h2>
+    <p class="fb-disclaimer"><strong>Please read</strong> — Under active development, with frequent breaking changes between versions. The only skill that places live trades: it acts on a real brokerage account and can lose real money. Use at your own risk; not financial advice.</p>
     <p>Autonomously trade the Agentic Account via the Robinhood MCP, with standing protective orders, a tunable horizon bias, and a leveraged-ETF screen.</p>
     <p><code>/plugin install trading-agent@skills-marketplace</code> · <a href="https://github.com/HappypsychoX/trading-agent">HappypsychoX/trading-agent</a></p>
   </div>
