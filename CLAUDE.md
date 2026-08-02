@@ -4,20 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A collection ("marketplace") of packaged Claude skills, shipped as a **Claude Code plugin marketplace** (`.claude-plugin/marketplace.json` + `plugins/`) and consumed via `/plugin`. There is no application, build system, or test suite — the deliverables are the skills themselves.
+A collection ("marketplace") of packaged Claude skills, shipped as a **Claude Code plugin marketplace** (`.claude-plugin/marketplace.json`) and consumed via `/plugin`. This repo is a **thin index only**: the manifest points at each skill's own standalone GitHub repo, and **no skill source lives here**. There is no application, build system, or test suite — the deliverables are the skills themselves.
 
-Each skill lives as a plain `SKILL.md`: Markdown with a YAML frontmatter block (`name`, `description`) followed by the skill's instruction body. The `description` is what a Claude agent matches against to decide when to invoke the skill, so it is written as a long trigger-phrase list, not prose.
+Each skill lives as a plain `SKILL.md` in its own repo: Markdown with a YAML frontmatter block (`name`, `description`) followed by the skill's instruction body. The `description` is what a Claude agent matches against to decide when to invoke the skill, so it is written as a long trigger-phrase list, not prose.
 
 ## Plugin marketplace layout
 
+This repo holds only the manifest:
+
 ```
 .claude-plugin/marketplace.json        # marketplace manifest (name, owner, plugins[])
-plugins/<plugin-name>/
-  .claude-plugin/plugin.json           # plugin manifest (name required)
-  skills/<skill-name>/SKILL.md         # unpacked skills, auto-discovered
 ```
 
-Each skill ships as its **own** plugin so they can be installed independently — `trading-agent` (trades) and `trading-report` (read-only), matching the read/write split of the live system (see below). By convention each plugin holds a single skill of the same name. Skills under `skills/` are auto-discovered — they are not listed in `plugin.json`. A plugin `source` in `marketplace.json` is a relative path that must start with `./` and resolves from the repo root.
+Each `plugins[]` entry's `source` points at the skill's **own repo**, which carries the plugin/skill tree:
+
+```
+HappypsychoX/<skill-name>              # standalone per-skill repo (one plugin each)
+  .claude-plugin/plugin.json           # plugin manifest (name, version)
+  skills/<skill-name>/SKILL.md         # unpacked skill, auto-discovered
+```
+
+Each skill ships as its **own** plugin in its **own** repo so they can be installed and versioned independently — [`trading-agent`](https://github.com/HappypsychoX/trading-agent) (trades) and [`trading-report`](https://github.com/HappypsychoX/trading-report) (read-only), matching the read/write split of the live system (see below). By convention each plugin holds a single skill of the same name. Skills under `skills/` are auto-discovered — they are not listed in `plugin.json`. A plugin `source` in `marketplace.json` is a GitHub repo reference — `{ "source": "github", "repo": "HappypsychoX/<skill-name>" }` — not a local path.
 
 Users install a plugin with:
 ```bash
@@ -26,11 +33,11 @@ Users install a plugin with:
 /plugin install trading-report@skills-marketplace
 ```
 
-When asked to "change a skill", the edit belongs in that skill's `plugins/<plugin-name>/skills/<skill-name>/SKILL.md` — a plain Markdown file you can Read and Edit directly. (This repo used to also ship each skill as a `.skill` ZIP archive at the root; those were removed once the unpacked `SKILL.md` files became the single source of truth.)
+When asked to "change a skill", the edit belongs in that skill's **own repo** (`HappypsychoX/<skill-name>`), under `skills/<skill-name>/SKILL.md` — not in this marketplace repo, which only holds the manifest. This repo used to vendor every skill under `plugins/<plugin-name>/`; those trees were split out into per-skill repos (and the marketplace `source` repointed at them) once each skill became its own repo. Changing this marketplace repo is limited to the manifest, this file, and the README.
 
 ## The two current skills share one live system
 
-Both skills operate the same external trading system, so a change to shared conventions (repo names, file paths, the read-only rule) usually needs to be mirrored in both:
+Both skills operate the same external trading system, so a change to shared conventions (repo names, file paths, the read-only rule) usually needs to be mirrored across **both skill repos**:
 
 - **`trading-agent`** — the autonomous trading agent. Reads market/account data and **places trades** in the Agentic Account via the Robinhood MCP. Fetches its risk parameters fresh each session from the configured `paths.risk_parameters` file (e.g. `config/risk-parameters.json`), falling back to a hardcoded table.
 - **`trading-report`** — the reporting half. **Read-only** against Robinhood; its one write is publishing a portfolio snapshot to the configured `paths.dashboard_data` file (e.g. `docs/data/data.json`), which drives a GitHub Pages dashboard.
@@ -61,19 +68,19 @@ The leading `^\[v\d+\.\d+\.\d+\]` tag is visually distinct, regex-updatable, and
 | **MINOR** | A backward-compatible capability or new trigger phrases are added. |
 | **PATCH** | Wording, clarifications, or instruction fixes with no behavioral change. |
 
-**Keep `plugin.json` `version` in lockstep with the description tag**, using the description version as the single source of truth: on every skill edit, set both the `SKILL.md` `[vX.Y.Z]` and that plugin's `plugin.json` `version` to the same bumped SemVer. This repo is one-skill-per-plugin, so one honest number is clearer than two, the `/plugin` picker shows the version the skill advertises, and — because a static unchanged `plugin.json` `version` means installers don't receive the update — tying the plugin bump to the mandatory description bump guarantees a skill change can't ship without moving the version that gates delivery.
+**Keep `plugin.json` `version` in lockstep with the description tag**, using the description version as the single source of truth: on every skill edit, set both the `SKILL.md` `[vX.Y.Z]` and that plugin's `plugin.json` `version` to the same bumped SemVer. Each skill repo is one-skill-per-plugin, so one honest number is clearer than two, the `/plugin` picker shows the version the skill advertises, and — because a static unchanged `plugin.json` `version` means installers don't receive the update — tying the plugin bump to the mandatory description bump guarantees a skill change can't ship without moving the version that gates delivery.
 
 **Caveat:** this lockstep holds only while it's one skill per plugin. If a plugin ever bundles multiple skills, switch models — `plugin.json` `version` becomes a package-level rollup (or omit it to fall back to the git commit SHA) and each skill keeps its own independent description version. Do not apply lockstep to a multi-skill plugin.
 
 ### Skill changelog
 
-Each skill keeps **its own** `CHANGELOG.md` next to its `SKILL.md`:
+Each skill keeps **its own** `CHANGELOG.md` next to its `SKILL.md`, in the skill's own repo:
 
 ```
-plugins/<plugin-name>/skills/<skill-name>/CHANGELOG.md
+HappypsychoX/<skill-name> : skills/<skill-name>/CHANGELOG.md
 ```
 
-One changelog per skill — never a single repo-wide changelog — so a skill's history travels with the skill and matches the one-skill-per-plugin, install-independently model.
+One changelog per skill — never a single marketplace-wide changelog — so a skill's history travels with the skill and matches the one-repo-per-skill, install-independently model.
 
 **Every version bump adds a changelog entry in the same commit as the `SKILL.md`/`plugin.json` change.** No version moves without a corresponding entry. Format ([Keep a Changelog](https://keepachangelog.com/) style, newest first):
 
