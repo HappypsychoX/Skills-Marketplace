@@ -14,7 +14,10 @@
     },
     {
       "name": "trading-report",
-      "source": "./plugins/trading-report",
+      "source": {
+        "source": "github",
+        "repo": "HappypsychoX/trading-report"
+      },
       "description": "Read-only Agentic-Account portfolio reporter that publishes a dashboard snapshot to the Trading-Dashboard repo."
     }
   ],
