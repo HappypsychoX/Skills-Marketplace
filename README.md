@@ -23,6 +23,10 @@ The two trading skills operate the same external trading system, scoped to the *
 /plugin install independent-review@skills-marketplace
 ```
 
+## Site
+
+A browsable, static marketplace site lives under [`docs/`](docs/) — a landing page listing every skill plus a detail page per skill (description, install command, example usage, and a link to the skill's own repo). It's built on the **Modernist** design system and renders client-side, so it works from any static host; point GitHub Pages at the `docs/` folder to publish it. The listing is data-driven from [`docs/skills-data.js`](docs/skills-data.js) — add a skill there when you add one to the manifest.
+
 ## Configuration
 
 `independent-review` needs no configuration — it reviews whatever codebase you point it at and takes no secrets or runtime config file.

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Marketplace</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/modernist-82fdc633-58c0-4a96-bede-ad6248c83922/styles.css">
+  <script src="_ds/modernist-82fdc633-58c0-4a96-bede-ad6248c83922/_ds_bundle.js"></script>
+  <style>
+    a { color: var(--color-accent-700); }
+    a:hover { color: var(--color-accent); }
+    body { margin: 0; text-wrap: pretty; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 72px); }
+    .nav { padding-inline: max(clamp(20px, 5vw, 72px), calc((100% - 1120px) / 2 + clamp(20px, 5vw, 72px))); }
+    .nav a { color: color-mix(in srgb, var(--color-text) 70%, transparent); }
+    .nav a:hover { color: var(--color-accent); }
+    .rule2 { height: 2px; border: 0; margin: 0; background: var(--color-divider); }
+    .kicker { display: block; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700); font-feature-settings: "tnum" 1; margin: 0 0 16px; }
+    .hero { padding: 64px 0 0; display: grid; grid-template-columns: 1.5fr 1px 1fr; gap: 0; align-items: stretch; }
+    .hero-main { padding: 8px 48px 48px 0; }
+    .hero-vrule { background: var(--color-divider); }
+    .display { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: clamp(36px, 5vw, 62px); line-height: 1.04; letter-spacing: -0.02em; margin: 0; margin-left: -0.05em; }
+    .display .line { display: block; }
+    .display .line.accent { color: var(--color-accent); }
+    .hero .sub { font-size: 17px; line-height: 28px; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent); margin: 24px 0 0; }
+    .hero-stats { padding: 8px 0 48px 48px; display: flex; flex-direction: column; gap: 0; }
+    .hero-stat { padding: 18px 0; border-bottom: 2px solid var(--color-divider); }
+    .hero-stat:first-child { padding-top: 0; }
+    .hero-stat:last-child { border-bottom: none; }
+    .hero-stat-num { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 34px; letter-spacing: -0.01em; color: var(--color-accent-700); }
+    .hero-stat-label { font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: color-mix(in srgb, var(--color-text) 65%, transparent); margin-top: 4px; }
+    @media (max-width: 760px) { .hero { grid-template-columns: 1fr; } .hero-vrule { display: none; } .hero-main, .hero-stats { padding: 0 0 32px; } }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding: 40px 0 0; }
+    .section-head h2 { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: clamp(22px, 2.6vw, 30px); letter-spacing: -0.015em; margin: 0; }
+    .section-head .count { font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: color-mix(in srgb, var(--color-text) 60%, transparent); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 24px 0 72px; }
+    .skill-card { display: flex; flex-direction: column; height: 100%; text-decoration: none; color: inherit; }
+    .skill-card .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .skill-card .card-title { font-size: 19px; }
+    .skill-card .card-body { flex: 1; }
+    .skill-card .card-meta { color: var(--color-accent-700); font-weight: 600; }
+    footer { padding: 32px 0 48px; font-size: 13px; color: color-mix(in srgb, var(--color-text) 70%, transparent); }
+    @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } .nav a { display: none; } }
+  </style>
+</helmet>
+<nav class="nav">
+  <span class="nav-brand">Skills Marketplace</span>
+  <a href="https://github.com/HappypsychoX/Skills-Marketplace" target="_blank" rel="noopener">GitHub</a>
+</nav>
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-main">
+      <span class="kicker">Claude Code plugin marketplace</span>
+      <h1 class="display"><span class="line">A marketplace of</span><span class="line accent">Claude skills.</span></h1>
+      <p class="sub">Skills are focused instructions Claude loads on demand. Browse the collection, install any one with a single <code>/plugin</code> command, and Claude picks it up automatically whenever a task calls for it.</p>
+    </div>
+    <div class="hero-vrule"></div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">03</div>
+        <div class="hero-stat-label">Skills</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">03</div>
+        <div class="hero-stat-label">Standalone repos</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">1-line</div>
+        <div class="hero-stat-label">/plugin install</div>
+      </div>
+    </div>
+  </section>
+  <hr class="rule2">
+  <div class="section-head">
+    <h2>All skills</h2>
+    <span class="count">Installed independently</span>
+  </div>
+  <section class="grid" aria-label="All skills">
+    <sc-for list="{{ skills }}" as="skill" hint-placeholder-count="3">
+      <a class="card skill-card" href="{{ skill.href }}">
+        <div class="card-head">
+          <div class="card-title">{{ skill.name }}</div>
+          <span class="tag tag-neutral">{{ skill.access }}</span>
+        </div>
+        <p class="card-body">{{ skill.description }}</p>
+        <div class="card-meta">View skill →</div>
+      </a>
+    </sc-for>
+  </section>
+</div>
+<div class="wrap">
+  <footer>Three skills from the Skills Marketplace — each ships as its own plugin in its own repo and installs independently via <code>/plugin</code>. Source on <a href="https://github.com/HappypsychoX/Skills-Marketplace" target="_blank" rel="noopener">GitHub</a>.</footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { skills: [] };
+
+  async componentDidMount() {
+    const { SKILLS } = await import('./skills-data.js');
+    this.setState({
+      skills: SKILLS.map(s => ({ ...s, href: 'Detail.dc.html?skill=' + s.id }))
+    });
+  }
+
+  renderVals() {
+    return { skills: this.state.skills };
+  }
+}
+
+</script>
+</body>
+</html>
