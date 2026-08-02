@@ -36,6 +36,10 @@
     .code-block { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; line-height: 1.6; background: var(--color-neutral-100); border: 2px solid var(--color-divider); padding: 16px 18px; margin: 0 0 12px; overflow-x: auto; }
     .code-block .prompt { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
     .quote-block { font-size: 17px; line-height: 27px; font-style: italic; border-left: 2px solid var(--color-divider); padding-left: 20px; margin: 0 0 16px; max-width: 58ch; }
+    .req-list { list-style: none; padding: 0; margin: 0; max-width: 62ch; }
+    .req-list li { position: relative; padding-left: 22px; font-size: 15.5px; line-height: 27px; color: color-mix(in srgb, var(--color-text) 80%, transparent); margin: 0 0 10px; }
+    .req-list li:last-child { margin-bottom: 0; }
+    .req-list li::before { content: ""; position: absolute; left: 0; top: 11px; width: 7px; height: 7px; background: var(--color-accent-700); }
     footer { padding: 32px 0 48px; font-size: 13px; color: color-mix(in srgb, var(--color-text) 70%, transparent); }
   </style>
 </helmet>
@@ -63,6 +67,25 @@
   <section class="section">
     <h2 class="section-title">Description</h2>
     <p>{{ skill.longDescription }}</p>
+  </section>
+  <hr class="rule2">
+  <section class="section">
+    <h2 class="section-title">When it triggers</h2>
+    <p>{{ skill.triggers }}</p>
+  </section>
+  <hr class="rule2">
+  <section class="section">
+    <h2 class="section-title">Configuration</h2>
+    <p>{{ skill.configuration }}</p>
+  </section>
+  <hr class="rule2">
+  <section class="section">
+    <h2 class="section-title">Requirements</h2>
+    <ul class="req-list">
+      <sc-for list="{{ skill.requirements }}" as="req" hint-placeholder-count="3">
+        <li>{{ req }}</li>
+      </sc-for>
+    </ul>
   </section>
   <hr class="rule2">
   <section class="section">
@@ -102,7 +125,7 @@ class Component extends DCLogic {
   }
 
   renderVals() {
-    return { skill: this.state.skill || { name: '', description: '', longDescription: '', install: '', usageTitle: '', usagePrompt: '', usageNote: '', access: '', githubUrl: '#', icon: null } };
+    return { skill: this.state.skill || { name: '', description: '', longDescription: '', triggers: '', configuration: '', requirements: [], install: '', usageTitle: '', usagePrompt: '', usageNote: '', access: '', githubUrl: '#', icon: null } };
   }
 }
 

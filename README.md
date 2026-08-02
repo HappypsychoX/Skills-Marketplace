@@ -25,7 +25,9 @@ The two trading skills operate the same external trading system, scoped to the *
 
 ## Site
 
-A browsable, static marketplace site lives under [`docs/`](docs/) — a landing page listing every skill plus a detail page per skill (description, install command, example usage, and a link to the skill's own repo). It's built on the **Modernist** design system and renders client-side, so it works from any static host; point GitHub Pages at the `docs/` folder to publish it. The listing is data-driven from [`docs/skills-data.js`](docs/skills-data.js) — add a skill there when you add one to the manifest.
+**Live at [happypsychox.github.io/Skills-Marketplace](https://happypsychox.github.io/Skills-Marketplace/).**
+
+A browsable, static marketplace site lives under [`docs/`](docs/) — a landing page listing every skill plus a detail page per skill (description, when it triggers, configuration, requirements, install command, example usage, and a link to the skill's own repo). It's built on the **Modernist** design system and renders client-side, so it works from any static host; it's published via GitHub Pages from the `docs/` folder on `main`. The listing is data-driven from [`docs/skills-data.js`](docs/skills-data.js) — add a skill there when you add one to the manifest.
 
 ## Configuration
 
