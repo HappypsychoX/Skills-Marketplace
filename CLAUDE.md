@@ -4,16 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A collection ("marketplace") of packaged Claude skills, shipped as a **Claude Code plugin marketplace** (`.claude-plugin/marketplace.json`) and consumed via `/plugin`. This repo is a **thin index only**: the manifest points at each skill's own standalone GitHub repo, and **no skill source lives here**. There is no application, build system, or test suite — the deliverables are the skills themselves.
+A collection ("marketplace") of packaged Claude skills, shipped as a **Claude Code plugin marketplace** (`.claude-plugin/marketplace.json`) and consumed via `/plugin`. This repo is a **thin index**: the manifest points at each skill's own standalone GitHub repo, and **no skill source lives here**. There is no build system or test suite — the deliverables are the skills themselves. The one piece of non-manifest content is a static browsable **site under `docs/`** (see below); it has no build step.
 
 Each skill lives as a plain `SKILL.md` in its own repo: Markdown with a YAML frontmatter block (`name`, `description`) followed by the skill's instruction body. The `description` is what a Claude agent matches against to decide when to invoke the skill, so it is written as a long trigger-phrase list, not prose.
 
 ## Plugin marketplace layout
 
-This repo holds only the manifest:
+This repo holds the manifest plus the static site:
 
 ```
 .claude-plugin/marketplace.json        # marketplace manifest (name, owner, plugins[])
+docs/                                  # static browsable site (GitHub Pages from /docs)
+  index.html                           # entry point → redirects to Landing.dc.html
+  Landing.dc.html                      # skill listing
+  Detail.dc.html                       # per-skill detail (?skill=<id>)
+  skills-data.js                       # the listing's data — mirror of plugins[]
+  support.js                           # DC runtime (loads React/Babel from unpkg at runtime)
+  _ds/modernist-<uuid>/                # imported Modernist design system (styles.css, bundle, …)
 ```
 
 Each `plugins[]` entry's `source` points at the skill's **own repo**, which carries the plugin/skill tree:
@@ -33,7 +40,11 @@ Users install a plugin with:
 /plugin install trading-report@skills-marketplace
 ```
 
-When asked to "change a skill", the edit belongs in that skill's **own repo** (`HappypsychoX/<skill-name>`), under `skills/<skill-name>/SKILL.md` — not in this marketplace repo, which only holds the manifest. This repo used to vendor every skill under `plugins/<plugin-name>/`; those trees were split out into per-skill repos (and the marketplace `source` repointed at them) once each skill became its own repo. Changing this marketplace repo is limited to the manifest, this file, and the README.
+When asked to "change a skill", the edit belongs in that skill's **own repo** (`HappypsychoX/<skill-name>`), under `skills/<skill-name>/SKILL.md` — not in this marketplace repo, which only holds the manifest and the site. This repo used to vendor every skill under `plugins/<plugin-name>/`; those trees were split out into per-skill repos (and the marketplace `source` repointed at them) once each skill became its own repo. Changing this marketplace repo is limited to the manifest, this file, the README, and the `docs/` site.
+
+## The `docs/` site
+
+A static, data-driven marketplace site: a landing page listing every skill and a per-skill detail page (description, install command, example usage, link to the skill's own repo). It renders client-side via the vendored **DC runtime** (`support.js`, which pulls React/ReactDOM/Babel from the unpkg CDN at load time and mounts the `<x-dc>` template) over the imported **Modernist** design system in `docs/_ds/` — so it needs no build step and works from any static host; publish it by pointing GitHub Pages at the `/docs` folder. `_ds/` and `support.js` are imported artifacts — treat them as vendored and edit only `Landing.dc.html`, `Detail.dc.html`, and `skills-data.js`. **The listing is driven by `docs/skills-data.js`, which must stay in sync with `marketplace.json`'s `plugins[]`** — when a plugin is added, removed, or renamed in the manifest, mirror it in `skills-data.js` (`id`, `name`, `access`, `repo`, and the copy fields).
 
 ## The two current skills share one live system
 
