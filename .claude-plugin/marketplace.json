@@ -6,7 +6,10 @@
   "plugins": [
     {
       "name": "trading-agent",
-      "source": "./plugins/trading-agent",
+      "source": {
+        "source": "github",
+        "repo": "HappypsychoX/trading-agent"
+      },
       "description": "Autonomous Agentic-Account trader (places trades via Robinhood MCP with protective orders, horizon bias, leveraged-ETF screen, and GitHub-backed risk parameters)."
     },
     {
