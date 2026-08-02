@@ -10,8 +10,9 @@ Each skill ships as its **own** plugin in its **own** repo so they can be instal
 | --- | --- | --- | --- |
 | `trading-agent` | [HappypsychoX/trading-agent](https://github.com/HappypsychoX/trading-agent) | Read + **write** | Autonomous Agentic-Account trader. Places trades via the Robinhood MCP with standing protective orders (stop-loss/take-profit), a tunable horizon bias, a leveraged/inverse ETF screen, and GitHub-backed risk parameters with a cross-session note. |
 | `trading-report` | [HappypsychoX/trading-report](https://github.com/HappypsychoX/trading-report) | **Read-only** | Reporting half. Reads Robinhood via MCP and publishes a portfolio snapshot (`data.json`) to the dashboard repo via the GitHub Contents API, driving a GitHub Pages dashboard. Never places or mutates orders. |
+| `independent-review` | [HappypsychoX/independent-review](https://github.com/HappypsychoX/independent-review) | **Read-only** | Codebase reviewer. Analyzes code quality, architecture, performance, security, testing, and documentation, then produces a structured findings report ranked by severity and ROI. Never modifies, refactors, or rewrites the code. |
 
-Both skills operate the same external trading system, scoped to the **Agentic Account only**. `trading-agent` is the only skill that trades; `trading-report` is strictly read-only against Robinhood.
+The two trading skills operate the same external trading system, scoped to the **Agentic Account only**. `trading-agent` is the only skill that trades; `trading-report` is strictly read-only against Robinhood. `independent-review` is unrelated to trading — a standalone read-only code reviewer.
 
 ## Install
 
@@ -19,11 +20,14 @@ Both skills operate the same external trading system, scoped to the **Agentic Ac
 /plugin marketplace add HappypsychoX/Skills-Marketplace
 /plugin install trading-agent@skills-marketplace
 /plugin install trading-report@skills-marketplace
+/plugin install independent-review@skills-marketplace
 ```
 
 ## Configuration
 
-Both skills read every environment-specific value — the GitHub token, the dashboard repo, the in-repo file paths, and the account scope — from a single runtime config file, **`trading-config.json`**, kept **outside this repo** and never committed. To set up:
+`independent-review` needs no configuration — it reviews whatever codebase you point it at and takes no secrets or runtime config file.
+
+The two **trading** skills read every environment-specific value — the GitHub token, the dashboard repo, the in-repo file paths, and the account scope — from a single runtime config file, **`trading-config.json`**, kept **outside this repo** and never committed. To set up:
 
 1. Copy the committed template `trading-config.example.json` (one ships next to each skill) to `trading-config.json`.
 2. Put it in a folder you connect to the skill at runtime. Suggested location: `%LOCALAPPDATA%/<skill-name>` (e.g. `%LOCALAPPDATA%/trading-agent`, `%LOCALAPPDATA%/trading-report`); a shared secrets folder works too since both skills use the same file shape.
@@ -67,5 +71,6 @@ Each skill also keeps **its own** [Keep a Changelog](https://keepachangelog.com/
 
 - [`trading-agent` changelog](https://github.com/HappypsychoX/trading-agent/blob/main/skills/trading-agent/CHANGELOG.md)
 - [`trading-report` changelog](https://github.com/HappypsychoX/trading-report/blob/main/skills/trading-report/CHANGELOG.md)
+- [`independent-review` changelog](https://github.com/HappypsychoX/independent-review/blob/main/skills/independent-review/CHANGELOG.md)
 
 See [CLAUDE.md](CLAUDE.md) for the full conventions.
