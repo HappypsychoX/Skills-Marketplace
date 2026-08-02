@@ -23,6 +23,13 @@ export const SKILLS = [
     usageTitle: "Ask Claude to run an agentic trading session",
     usagePrompt: "“Run the trading agent — trade the Agentic Account for today and set protective orders on anything you open.”",
     usageNote: "The only skill that places orders. It trades the Agentic Account exclusively and reads its risk limits fresh from the trading-config file each session.",
+    changelog: {
+      version: "4.0.0",
+      date: "2026-08-01",
+      changes: [
+        { type: "Changed", text: "The cross-session note (position-notes.md) now lives in the same directory as trading-config.json instead of a separate connected notes folder — one connected folder holds both config and note. Existing setups with a separate notes folder should move position-notes.md next to their config." }
+      ]
+    },
     related: ["trading-report", "independent-review"]
   },
   {
@@ -44,6 +51,15 @@ export const SKILLS = [
     usageTitle: "Ask Claude for a portfolio update",
     usagePrompt: "“Give me today's Agentic Account report and push the dashboard.”",
     usageNote: "Strictly read-only against Robinhood — it can't trade. The target repo, branch and file path all come from the external trading-config file.",
+    changelog: {
+      version: "3.0.0",
+      date: "2026-08-01",
+      changes: [
+        { type: "Changed", text: "Externalized every environment-specific value into a single runtime config file, trading-config.json, located via the connected folder — no hardcoded repo owner/name, file path, or account scope remains in the skill body." },
+        { type: "Changed", text: "The GitHub token, dashboard repo (owner/repo/branch), published-data path, and account scope are all read from that config file; the fetch and publish commands compose their URLs from those values." },
+        { type: "Added", text: "A sanitized trading-config.example.json template to copy and fill in; the real config lives outside the repo and is git-ignored." }
+      ]
+    },
     related: ["trading-agent", "independent-review"]
   },
   {
@@ -63,6 +79,13 @@ export const SKILLS = [
     usageTitle: "Ask Claude to review a codebase",
     usagePrompt: "“Do an independent review of this repo and rank the findings by severity and ROI.”",
     usageNote: "Read-only and config-free — point it at any codebase and it reports without touching a line.",
+    changelog: {
+      version: "1.0.0",
+      date: "2026-08-02",
+      changes: [
+        { type: "Added", text: "Initial release. Read-only, advisory codebase reviewer covering code quality, architecture & design, performance, security, testing, and documentation, producing a structured report with findings ranked by severity and ROI. It analyzes only — it never modifies, refactors, or rewrites the code." }
+      ]
+    },
     related: ["trading-agent", "trading-report"]
   }
 ];
