@@ -1,29 +1,43 @@
 ---
 name: trading-report
-description: "[v2.0.1] Generate the daily Agentic Account portfolio snapshot from Robinhood MCP and publish it as JSON directly to GitHub (via the Contents API) so the connected GitHub Pages dashboard updates. Use this skill whenever the user asks for a portfolio report, daily summary, account performance, P&L update, how the Agentic account is doing, wants to update/publish/push the trading dashboard, or mentions data.json, the Trading-Dashboard repo, the portfolio site, or \"Trading Report\"."
+description: "[v3.0.0] Generate the daily Agentic Account portfolio snapshot from Robinhood MCP and publish it as JSON directly to GitHub (via the Contents API) so the connected GitHub Pages dashboard updates — the target repo, branch, and file path all come from an external runtime config file. Use this skill whenever the user asks for a portfolio report, daily summary, account performance, P&L update, how the Agentic account is doing, wants to update/publish/push the trading dashboard, or mentions data.json, the dashboard repo, the trading config file, the portfolio site, or \"Trading Report\"."
 ---
 
-You read Agentic Account data from Robinhood via MCP, assemble it into the fixed JSON schema below, and publish it to the `Trading-Dashboard` GitHub repo via the REST Contents API — no git, no clone, no local credentials. Runs identically manually or on a schedule (needs only network + token). **The published JSON is the deliverable, not a chat report** — chat output is a short confirmation only. Self-contained (no dependency on other skills).
+You read Agentic Account data from Robinhood via MCP, assemble it into the fixed JSON schema below, and publish it to the configured dashboard GitHub repo via the REST Contents API — no git, no clone, no local credentials. Runs identically manually or on a schedule (needs only network + token). **The published JSON is the deliverable, not a chat report** — chat output is a short confirmation only. Self-contained (no dependency on other skills).
+
+## Runtime configuration (load first)
+
+Every environment-specific value — the GitHub token, the target repo, the file path, the account scope — lives in **one external config file, `trading-config.json`, kept outside this repo** and provided at runtime via a connected folder. Nothing here is hardcoded to a particular user, machine, or repo.
+
+- **Locate `trading-config.json`** in whatever folder is connected on the current machine — never hardcode an absolute path or username. Suggested location: **`%LOCALAPPDATA%/trading-report`** (a per-user, per-skill folder outside the repo); the same file shape is shared with `trading-agent`, so a shared secrets folder works too. If no connected folder has it, request one (e.g. named `trading-report` or `secrets`). Read it with the Read tool (plain JSON). A committed `trading-config.example.json` next to this skill shows the shape to copy.
+- **Read these values** and use them everywhere below in place of any literal:
+  - `github.token` → `$TOKEN` — PAT with `repo` scope. **Never print it in chat.**
+  - `github.owner` → `$OWNER`, `github.repo` → `$REPO`, `github.branch` → `$BRANCH`.
+  - `paths.dashboard_data` → `$FILE_PATH` (e.g. `docs/data/data.json`).
+  - `account.scope` — the account nickname to report on (e.g. `"Agentic Account"`).
+- On 401/403, stop and report the exact error — don't try to fix or replace the token. If `trading-config.json` itself can't be located, stop and report that too (this skill can't publish without it) — don't guess a repo or path.
 
 ## Scope
 
-**Agentic Account only.** The other two monitoring accounts must not appear in the JSON or be queried for it.
+**Configured account only** (`account.scope`, default Agentic Account). The other monitoring accounts must not appear in the JSON or be queried for it.
 
 ## Read-Only Rule for Robinhood (absolute)
 
-Call no Robinhood tool that changes account state: no placing/cancelling orders, no watchlist changes, no scan create/modify, no settings. If something looks like it needs action (e.g. a stale open order), note it in `open_orders[].stale` — do not act. The **only** write this skill performs is one authenticated update to `docs/data/data.json` via the GitHub Contents API (a normal commit under the hood, one per run) — no git, no other files, no history rewriting.
+Call no Robinhood tool that changes account state: no placing/cancelling orders, no watchlist changes, no scan create/modify, no settings. If something looks like it needs action (e.g. a stale open order), note it in `open_orders[].stale` — do not act. The **only** write this skill performs is one authenticated update to the configured `paths.dashboard_data` file (e.g. `docs/data/data.json`) via the GitHub Contents API (a normal commit under the hood, one per run) — no git, no other files, no history rewriting.
 
 ## Publishing Target & Auth
 
+All of these come from `trading-config.json` (see "Runtime configuration" above) — none is hardcoded:
+
 ```
-ORG       = "HappypsychoX"
-REPO      = "Trading-Dashboard"
-FILE_PATH = "docs/data/data.json"
-BRANCH    = "main"                # confirm via GET /repos/{ORG}/{REPO} if this ever 404s
+OWNER     = github.owner            # e.g. "your-github-username"
+REPO      = github.repo             # e.g. "your-dashboard-repo"
+FILE_PATH = paths.dashboard_data    # e.g. "docs/data/data.json"
+BRANCH    = github.branch           # e.g. "main"; confirm via GET /repos/$OWNER/$REPO if this ever 404s
 API_BASE  = "https://api.github.com"
 ```
 
-- **Locate the token** in a `github.json` secrets file (shape `{"github": {"token": "ghp_..."}}`) inside whatever folder is connected — never hardcode a filesystem path or username. If no connected folder has it, request one named `secrets`. Same credential as `trading-agent`; reuse as-is. Read it with the Read tool (plain JSON).
+- **Token** is `github.token` from the same config file. Same credential as `trading-agent`; reuse as-is.
 - **Never print the token in chat.** It only needs to exist transiently inside one shell command.
 - Required PAT scope: `repo` (contents read/write) on the repo. On 401/403, stop and report the exact error — don't try to fix or replace the token.
 
@@ -36,7 +50,7 @@ Substitute the real token for `$TOKEN`:
 ```bash
 curl -s -H "Authorization: Bearer $TOKEN" \
      -H "Accept: application/vnd.github+json" \
-     "https://api.github.com/repos/HappypsychoX/Trading-Dashboard/contents/docs/data/data.json?ref=main"
+     "https://api.github.com/repos/$OWNER/$REPO/contents/$FILE_PATH?ref=$BRANCH"
 ```
 
 - **Success:** response has `content` (base64, possibly with newlines) and `sha`. Decode `content` for the current JSON; keep `sha` for publishing.
@@ -47,7 +61,7 @@ You need this file's `charts.*` arrays (`equity_curve`, `realized_pnl_daily`, `b
 
 ### 2. Retrieve Robinhood data (Agentic Account only, batch where possible)
 
-- `get_accounts` — identify the Agentic Account by number; confirm before proceeding.
+- `get_accounts` — identify the account whose nickname matches `account.scope` (default Agentic Account) by number; confirm before proceeding.
 - `get_equity_orders` — today, all states (filled, partial, cancelled, rejected, open/queued).
 - `get_equity_positions` — open positions.
 - `get_pnl_trade_history` — all-time closed trades, to recompute `trade_quality` fresh each run. Prefer full API history (the source of truth); fall back to merging the existing file's `per_symbol` only if the API can't return full history in one reasonable pass.
@@ -112,12 +126,12 @@ B64=$(base64 -w0 working_data.json)
 curl -s -X PUT \
   -H "Authorization: Bearer $TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/HappypsychoX/Trading-Dashboard/contents/docs/data/data.json" \
+  "https://api.github.com/repos/$OWNER/$REPO/contents/$FILE_PATH" \
   -d @- <<EOF
 {
   "message": "Portfolio update - $(date +%Y-%m-%d)",
   "content": "$B64",
-  "branch": "main"$( [ -n "$SHA" ] && echo ",\n  \"sha\": \"$SHA\"" )
+  "branch": "$BRANCH"$( [ -n "$SHA" ] && echo ",\n  \"sha\": \"$SHA\"" )
 }
 EOF
 ```
@@ -133,7 +147,7 @@ Adjust quoting/escaping for your shell; the required fields are `message`, `cont
 
 Minimal — the JSON is the deliverable. After a successful run, a short confirmation only, e.g.:
 
-> Published — Agentic account $1,050.00 (+$0.90 today), 3 positions, 1 trade today. Pushed to `Trading-Dashboard` (commit `<short-sha>`).
+> Published — Agentic account $1,050.00 (+$0.90 today), 3 positions, 1 trade today. Pushed to `$OWNER/$REPO` (commit `<short-sha>`).
 
 Include in that same message only if applicable: any guardrail breach/near-breach (name it plainly); any stale/unprotected position flags; any step that failed — say exactly what failed and what you did instead, don't paper over it with an estimate. If something failed partway, state plainly what succeeded and what didn't (e.g. "JSON built, but the GitHub publish failed with `<error>` — nothing was published").
 

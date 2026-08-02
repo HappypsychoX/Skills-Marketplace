@@ -1,21 +1,35 @@
 ---
 name: "trading-agent"
-description: "[v2.0.1] Execute profitable trades in your designated Agentic Account using Robinhood MCP, with standing protective orders (stop-loss or take-profit) on positions, a tunable HORIZON_BIAS scale between short-term trading and long-term holding, a screen that blocks new leveraged/inverse ETF positions (e.g. TQQQ, SQQQ, SOXL), a GitHub-backed default risk parameter config (config/risk-parameters.json in HappypsychoX/Trading-Dashboard, with hardcoded fallback), and a cross-session note that carries reasoning and goals forward to tomorrow. Use it whenever the user wants to run the trading agent, execute trades, let Claude trade autonomously, start an agentic trading session, asks Claude to buy/sell stocks in the Agentic Account, or specifically mentions protective/stop-loss/take-profit orders, horizon bias, leveraged ETF rules, risk parameters, or wants the agent to remember its reasoning between sessions. Also triggers on the legacy names \"V4\", \"trading skill v4\", and \"trading-skill-v4\"."
+description: "[v3.0.0] Execute profitable trades in your designated Agentic Account using Robinhood MCP, with standing protective orders (stop-loss or take-profit) on positions, a tunable HORIZON_BIAS scale between short-term trading and long-term holding, a screen that blocks new leveraged/inverse ETF positions (e.g. TQQQ, SQQQ, SOXL), a GitHub-backed default risk parameter config whose repo, branch, and path all come from an external runtime config file (with a hardcoded fallback), and a cross-session note that carries reasoning and goals forward to tomorrow. Use it whenever the user wants to run the trading agent, execute trades, let Claude trade autonomously, start an agentic trading session, asks Claude to buy/sell stocks in the Agentic Account, or specifically mentions protective/stop-loss/take-profit orders, horizon bias, leveraged ETF rules, risk parameters, the trading config file, or wants the agent to remember its reasoning between sessions. Also triggers on the legacy names \"V4\", \"trading skill v4\", and \"trading-skill-v4\"."
 ---
 
 ## Division of Responsibility
 
 This skill defines the trading framework and **default parameters**. The invoking prompt (e.g. a scheduled session) sets timing, session-specific limits, and output format, and overrides any default here where it speaks. Where silent, GitHub-sourced or hardcoded defaults apply (see below).
 
-## Loading Default Risk Parameters (do this first, before Step 0)
+## Runtime configuration (load first — before Step 0)
 
-The "Default Risk Parameters" table is the **hardcoded fallback**. The authoritative source is `config/risk-parameters.json` in `HappypsychoX/Trading-Dashboard` (branch `main`), published by the dashboard artifact when the user tunes settings. Fetch fresh every session — never reuse a prior fetch.
+Every environment-specific value — the GitHub token, the target repo, the file paths, the account scope — lives in **one external config file, `trading-config.json`, kept outside this repo** and provided at runtime via a connected folder. Nothing here is hardcoded to a particular user, machine, or repo.
 
-1. **Get a GitHub token** from a `github.json` secrets file (`{"github": {"token": "ghp_..."}}`) in a connected folder — same credential `trading-report` uses. Request a `secrets` folder if none is connected. If unreachable (no one to grant access, etc.), skip to step 4 — never block the session over this.
+1. **Locate `trading-config.json`** in whatever folder is connected on the current machine — never hardcode an absolute path or username. Suggested location: **`%LOCALAPPDATA%/trading-agent`** (a per-user, per-skill folder outside the repo); the same file shape is shared with `trading-report`, so a shared secrets folder works too. If no connected folder has it, request one (e.g. named `trading-agent` or `secrets`). Read it with the Read tool (plain JSON). A committed `trading-config.example.json` next to this skill shows the shape to copy.
+2. **Read these values** from it and use them everywhere below in place of any literal:
+   - `github.token` — PAT (`repo` scope). **Never print it in chat.**
+   - `github.owner` / `github.repo` / `github.branch` — the dashboard repo coordinates. Compose the API base as `https://api.github.com/repos/{owner}/{repo}`.
+   - `paths.risk_parameters` — path to the risk-parameter file in that repo (e.g. `config/risk-parameters.json`).
+   - `account.scope` — the account nickname to trade in (e.g. `"Agentic Account"`). Used in Step 1 to identify the account.
+3. **If the config file is unreachable** (no connected folder, no one to grant access, etc.): fall back to the hardcoded Default Risk Parameters table and the `"Agentic Account"` scope, and say so in the Step 5 report — never block the session over config.
+
+In the sections below, `$TOKEN`, `$OWNER`, `$REPO`, `$BRANCH`, and `$RISK_PATH` refer to the values read here.
+
+## Loading Default Risk Parameters (do this right after loading config, before Step 0)
+
+The "Default Risk Parameters" table is the **hardcoded fallback**. The authoritative source is `paths.risk_parameters` in the configured repo (`$OWNER/$REPO`, branch `$BRANCH`), published by the dashboard artifact when the user tunes settings. Fetch fresh every session — never reuse a prior fetch.
+
+1. **Use the token and repo coordinates** loaded in "Runtime configuration" above. If the config file was unreachable, skip to step 4 — never block the session over this.
 2. **Fetch:**
    ```bash
    curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
-     "https://api.github.com/repos/HappypsychoX/Trading-Dashboard/contents/config/risk-parameters.json?ref=main"
+     "https://api.github.com/repos/$OWNER/$REPO/contents/$RISK_PATH?ref=$BRANCH"
    ```
    Decode the base64 `content` field.
 3. **Validate field-by-field.** Expected keys:
@@ -30,7 +44,7 @@ The "Default Risk Parameters" table is the **hardcoded fallback**. The authorita
    - `LEVERAGED_INSTRUMENTS_BLOCKED` (boolean)
 
    A well-formed key replaces its hardcoded default for this session only. A missing/malformed key keeps just that hardcoded default — don't discard the whole file over one bad field.
-4. **Fall back cleanly** on any failure (404, network/auth error, malformed JSON, no reachable secrets file): use the hardcoded table in full, and say so in the Step 5 report. Never let this block the session.
+4. **Fall back cleanly** on any failure (404, network/auth error, malformed JSON, no reachable config file): use the hardcoded table in full, and say so in the Step 5 report. Never let this block the session.
 5. **Record the source** in Step 5 either way — GitHub (with fetch timestamp) or hardcoded fallback (with the reason).
 
 This fetch is **read-only**; this skill never writes to `risk-parameters.json` (that's the dashboard artifact's job, on user request).
@@ -84,7 +98,7 @@ Apply before the tradability check in Step 2, per candidate:
 
 You have no memory of prior sessions — only the note your past self left.
 
-1. Look for `position-notes.md` in your connected notes folder. Need the exact path (Cowork states it directly, e.g. "Folder connected: C:\Users\...\Trading Agent Notes"); check accessible directories rather than guessing. In non-Cowork environments, check your working/outputs directory for the same filename.
+1. Look for `position-notes.md` in your connected notes folder. Need the exact path (Cowork states it directly, e.g. "Folder connected: <notes folder>"); check accessible directories rather than guessing. In non-Cowork environments, check your working/outputs directory for the same filename.
 2. If it exists, read it in full — per open position: thesis, intended horizon, plan, protective-order status and why, what would change your mind — plus a recent session log.
 3. If it doesn't exist, this is either the first session or notes aren't wired up — proceed, and create it in Step 4.
 4. If connected but genuinely unwritable, **say so explicitly in the report** — don't silently skip Step 4.
@@ -95,7 +109,7 @@ Treat the note as informed context, not gospel — if its thesis no longer holds
 
 Rebuild live account state — the note tells you what you were thinking; this tells you what's true now:
 
-1. Call `get_accounts`, identify the **Agentic Account**. Record its account number and pass it explicitly on every subsequent call — never rely on a default account.
+1. Call `get_accounts`, identify the account whose nickname matches `account.scope` from the runtime config (default **Agentic Account**). Record its account number and pass it explicitly on every subsequent call — never rely on a default account.
 2. Retrieve portfolio value, cash balance, available buying power.
 3. Retrieve all open positions.
 4. Retrieve open orders, including prior-session protective orders. For each: reconcile if filled since last session (update the note; if it was protective, note the position is now unprotected/closed); cancel any that no longer make sense at current prices, logging a reason.
@@ -188,7 +202,7 @@ Use the invoking prompt's output format if given. Otherwise:
 === TRADING SESSION SUMMARY ===
 Date/time: YYYY-MM-DD HH:MM ET
 Account: Agentic Account (#XXXX)
-Risk parameters source: [GitHub config/risk-parameters.json, fetched HH:MM ET | hardcoded fallback — reason]
+Risk parameters source: [GitHub (configured risk-parameters path), fetched HH:MM ET | hardcoded fallback — reason]
 HORIZON_BIAS: N (source: GitHub config | hardcoded default | overridden by invoking prompt)
 Trades executed: N
 TRADES: [BUY|SELL] SYMBOL x QTY @ $PRICE (status) — rationale

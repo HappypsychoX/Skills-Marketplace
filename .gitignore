@@ -1,0 +1,11 @@
+# Runtime config holding the GitHub token and environment-specific values.
+# Only the sanitized *.example template is committed; the real file lives
+# outside the repo (see each skill's "Runtime configuration" section) and
+# must never be tracked.
+trading-config.json
+**/trading-config.json
+
+# Legacy secrets filename, likewise never committed.
+github.json
+**/github.json
+secrets/
