@@ -32,14 +32,14 @@ When asked to "change a skill", the edit belongs in that skill's `plugins/<plugi
 
 Both skills operate the same external trading system, so a change to shared conventions (repo names, file paths, the read-only rule) usually needs to be mirrored in both:
 
-- **`trading-agent`** — the autonomous trading agent. Reads market/account data and **places trades** in the Agentic Account via the Robinhood MCP. Fetches its risk parameters fresh each session from `config/risk-parameters.json`, falling back to a hardcoded table.
-- **`trading-report`** — the reporting half. **Read-only** against Robinhood; its one write is publishing a portfolio snapshot to `docs/data/data.json`, which drives a GitHub Pages dashboard.
+- **`trading-agent`** — the autonomous trading agent. Reads market/account data and **places trades** in the Agentic Account via the Robinhood MCP. Fetches its risk parameters fresh each session from the configured `paths.risk_parameters` file (e.g. `config/risk-parameters.json`), falling back to a hardcoded table.
+- **`trading-report`** — the reporting half. **Read-only** against Robinhood; its one write is publishing a portfolio snapshot to the configured `paths.dashboard_data` file (e.g. `docs/data/data.json`), which drives a GitHub Pages dashboard.
 
 Shared infrastructure both skills assume:
 - **Robinhood MCP** for account/market data (and, for trading-agent only, order placement).
-- **GitHub REST Contents API** — writes/reads go to the `HappypsychoX/Trading-Dashboard` repo, `main` branch, **not** to this repo. Skills use the raw REST API (`curl`), never `git` clones or local checkouts, so they run identically from a fresh unattended session.
-- **Token** read from a `github.json` secrets file (`{"github": {"token": "ghp_..."}}`). Never print the token in chat.
-- **Scope: the "Agentic Account" only.** Other Robinhood accounts must never appear in queries or output.
+- **GitHub REST Contents API** — writes/reads go to the dashboard repo configured in `trading-config.json` (owner/repo/branch), **not** to this repo. Skills use the raw REST API (`curl`), never `git` clones or local checkouts, so they run identically from a fresh unattended session.
+- **One external runtime config file, `trading-config.json`**, holds every environment-specific value — GitHub token (`github.token`, shape `{"github": {"token": "ghp_..."}}` plus `owner`/`repo`/`branch`), the in-repo file paths (`paths.risk_parameters`, `paths.dashboard_data`), and the account scope (`account.scope`). It lives **outside this repo**, located at runtime via a connected folder (suggested `%LOCALAPPDATA%/{skill-name}`) — never a hardcoded path or username. Only the sanitized `trading-config.example.json` template is committed (one next to each skill); the real file is git-ignored. Never print the token in chat.
+- **Scope: the configured account only** (`account.scope`, default "Agentic Account"). Other Robinhood accounts must never appear in queries or output.
 
 ## Conventions to preserve when editing skills
 
@@ -86,6 +86,6 @@ One changelog per skill — never a single repo-wide changelog — so a skill's 
 - Use the bump-impact label as the group: MAJOR changes go under **Changed**/**Removed**, MINOR under **Added**/**Changed**, PATCH under **Fixed**/**Changed**.
 - Keep entries user-facing: describe what the skill now does differently, not the wording diff.
 
-- **Never hardcode a machine-specific filesystem path or username** in skill bodies — locate secrets via whatever folder is connected, so the same skill text runs across different PCs. (Note: some existing skills still contain absolute `C:/Users/...` paths; prefer the connected-folder pattern over copying those.)
+- **Never hardcode a machine-specific filesystem path or username** in skill bodies — locate `trading-config.json` (and any notes folder) via whatever folder is connected, so the same skill text runs across different PCs.
 - Keep the **read-only vs. write** boundary explicit and intact — `trading-report` must never place/cancel orders or mutate account state; trading-agent is the only skill that trades.
 - The `description` frontmatter is a triggering surface: when adding capabilities, extend its trigger phrases rather than shortening it.

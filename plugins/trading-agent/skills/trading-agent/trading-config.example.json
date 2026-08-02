@@ -1,0 +1,16 @@
+{
+  "_comment": "Copy this file to trading-config.json in a folder you connect to the skill at runtime (suggested: %LOCALAPPDATA%/trading-agent), then fill in your own values. Never commit the real trading-config.json — it holds a secret token. The same file shape is shared by trading-agent and trading-report.",
+  "github": {
+    "token": "ghp_your_personal_access_token_here",
+    "owner": "your-github-username",
+    "repo": "your-dashboard-repo",
+    "branch": "main"
+  },
+  "paths": {
+    "risk_parameters": "config/risk-parameters.json",
+    "dashboard_data": "docs/data/data.json"
+  },
+  "account": {
+    "scope": "Agentic Account"
+  }
+}

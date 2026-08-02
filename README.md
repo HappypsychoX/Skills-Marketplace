@@ -8,8 +8,8 @@ Each skill ships as its **own** plugin so they can be installed independently. B
 
 | Plugin | Version | Access | Description |
 | --- | --- | --- | --- |
-| [`trading-agent`](plugins/trading-agent/skills/trading-agent/SKILL.md) | [2.0.1](plugins/trading-agent/skills/trading-agent/CHANGELOG.md) | Read + **write** | Autonomous Agentic-Account trader. Places trades via the Robinhood MCP with standing protective orders (stop-loss/take-profit), a tunable horizon bias, a leveraged/inverse ETF screen, and GitHub-backed risk parameters with a cross-session note. |
-| [`trading-report`](plugins/trading-report/skills/trading-report/SKILL.md) | [2.0.1](plugins/trading-report/skills/trading-report/CHANGELOG.md) | **Read-only** | Reporting half. Reads Robinhood via MCP and publishes a portfolio snapshot (`data.json`) to the Trading-Dashboard repo via the GitHub Contents API, driving a GitHub Pages dashboard. Never places or mutates orders. |
+| [`trading-agent`](plugins/trading-agent/skills/trading-agent/SKILL.md) | [3.0.0](plugins/trading-agent/skills/trading-agent/CHANGELOG.md) | Read + **write** | Autonomous Agentic-Account trader. Places trades via the Robinhood MCP with standing protective orders (stop-loss/take-profit), a tunable horizon bias, a leveraged/inverse ETF screen, and GitHub-backed risk parameters with a cross-session note. |
+| [`trading-report`](plugins/trading-report/skills/trading-report/SKILL.md) | [3.0.0](plugins/trading-report/skills/trading-report/CHANGELOG.md) | **Read-only** | Reporting half. Reads Robinhood via MCP and publishes a portfolio snapshot (`data.json`) to the dashboard repo via the GitHub Contents API, driving a GitHub Pages dashboard. Never places or mutates orders. |
 
 Both skills operate the same external trading system, scoped to the **Agentic Account only**. `trading-agent` is the only skill that trades; `trading-report` is strictly read-only against Robinhood.
 
@@ -20,6 +20,24 @@ Both skills operate the same external trading system, scoped to the **Agentic Ac
 /plugin install trading-agent@skills-marketplace
 /plugin install trading-report@skills-marketplace
 ```
+
+## Configuration
+
+Both skills read every environment-specific value — the GitHub token, the dashboard repo, the in-repo file paths, and the account scope — from a single runtime config file, **`trading-config.json`**, kept **outside this repo** and never committed. To set up:
+
+1. Copy the committed template `trading-config.example.json` (one ships next to each skill) to `trading-config.json`.
+2. Put it in a folder you connect to the skill at runtime. Suggested location: `%LOCALAPPDATA%/<skill-name>` (e.g. `%LOCALAPPDATA%/trading-agent`, `%LOCALAPPDATA%/trading-report`); a shared secrets folder works too since both skills use the same file shape.
+3. Fill in your own values:
+
+   ```json
+   {
+     "github": { "token": "ghp_…", "owner": "you", "repo": "your-dashboard-repo", "branch": "main" },
+     "paths":  { "risk_parameters": "config/risk-parameters.json", "dashboard_data": "docs/data/data.json" },
+     "account": { "scope": "Agentic Account" }
+   }
+   ```
+
+The skills locate this file via the connected folder — no hardcoded path or username — so a fresh clone on any machine works once you create that one file. The token needs `repo` scope on your dashboard repo and is never printed in chat.
 
 ## Layout
 
