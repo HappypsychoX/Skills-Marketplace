@@ -1,6 +1,6 @@
 ---
 name: "trading-agent"
-description: "[v3.0.0] Execute profitable trades in your designated Agentic Account using Robinhood MCP, with standing protective orders (stop-loss or take-profit) on positions, a tunable HORIZON_BIAS scale between short-term trading and long-term holding, a screen that blocks new leveraged/inverse ETF positions (e.g. TQQQ, SQQQ, SOXL), a GitHub-backed default risk parameter config whose repo, branch, and path all come from an external runtime config file (with a hardcoded fallback), and a cross-session note that carries reasoning and goals forward to tomorrow. Use it whenever the user wants to run the trading agent, execute trades, let Claude trade autonomously, start an agentic trading session, asks Claude to buy/sell stocks in the Agentic Account, or specifically mentions protective/stop-loss/take-profit orders, horizon bias, leveraged ETF rules, risk parameters, the trading config file, or wants the agent to remember its reasoning between sessions. Also triggers on the legacy names \"V4\", \"trading skill v4\", and \"trading-skill-v4\"."
+description: "[v4.0.0] Execute profitable trades in your designated Agentic Account using Robinhood MCP, with standing protective orders (stop-loss or take-profit) on positions, a tunable HORIZON_BIAS scale between short-term trading and long-term holding, a screen that blocks new leveraged/inverse ETF positions (e.g. TQQQ, SQQQ, SOXL), a GitHub-backed default risk parameter config whose repo, branch, and path all come from an external runtime config file (with a hardcoded fallback), and a cross-session note that carries reasoning and goals forward to tomorrow. Use it whenever the user wants to run the trading agent, execute trades, let Claude trade autonomously, start an agentic trading session, asks Claude to buy/sell stocks in the Agentic Account, or specifically mentions protective/stop-loss/take-profit orders, horizon bias, leveraged ETF rules, risk parameters, the trading config file, or wants the agent to remember its reasoning between sessions. Also triggers on the legacy names \"V4\", \"trading skill v4\", and \"trading-skill-v4\"."
 ---
 
 ## Division of Responsibility
@@ -19,7 +19,9 @@ Every environment-specific value — the GitHub token, the target repo, the file
    - `account.scope` — the account nickname to trade in (e.g. `"Agentic Account"`). Used in Step 1 to identify the account.
 3. **If the config file is unreachable** (no connected folder, no one to grant access, etc.): fall back to the hardcoded Default Risk Parameters table and the `"Agentic Account"` scope, and say so in the Step 5 report — never block the session over config.
 
-In the sections below, `$TOKEN`, `$OWNER`, `$REPO`, `$BRANCH`, and `$RISK_PATH` refer to the values read here.
+**Notes live alongside the config.** The cross-session note `position-notes.md` (Steps 0 and 4) resides in the **same directory as `trading-config.json`** — one connected folder holds both the config and the note, so there is nothing separate to wire up. Resolve `position-notes.md` from that directory; never hardcode an absolute path or username. If the config file was unreachable and its directory can't be determined, fall back to your working/outputs directory for the same filename.
+
+In the sections below, `$TOKEN`, `$OWNER`, `$REPO`, `$BRANCH`, and `$RISK_PATH` refer to the values read here, and `$CONFIG_DIR` refers to the directory containing `trading-config.json`.
 
 ## Loading Default Risk Parameters (do this right after loading config, before Step 0)
 
@@ -98,7 +100,7 @@ Apply before the tradability check in Step 2, per candidate:
 
 You have no memory of prior sessions — only the note your past self left.
 
-1. Look for `position-notes.md` in your connected notes folder. Need the exact path (Cowork states it directly, e.g. "Folder connected: <notes folder>"); check accessible directories rather than guessing. In non-Cowork environments, check your working/outputs directory for the same filename.
+1. Look for `position-notes.md` in `$CONFIG_DIR` — the same directory as `trading-config.json` (see "Notes live alongside the config"). If the config was unreachable, fall back to your working/outputs directory for the same filename. Check accessible directories rather than guessing.
 2. If it exists, read it in full — per open position: thesis, intended horizon, plan, protective-order status and why, what would change your mind — plus a recent session log.
 3. If it doesn't exist, this is either the first session or notes aren't wired up — proceed, and create it in Step 4.
 4. If connected but genuinely unwritable, **say so explicitly in the report** — don't silently skip Step 4.
@@ -169,7 +171,7 @@ Per position held after this session (new or existing):
 
 ## Step 4 — Leave a Note for Tomorrow (mandatory, before ending the session)
 
-Write (create/overwrite) `position-notes.md` in the connected notes folder — this is what gives a stateless session continuity; Step 0 of the next session depends on it.
+Write (create/overwrite) `position-notes.md` in `$CONFIG_DIR` — the same directory as `trading-config.json` (see "Notes live alongside the config"), falling back to your working/outputs directory only if the config was unreachable. This is what gives a stateless session continuity; Step 0 of the next session depends on it.
 
 ```markdown
 # Position Notes — Last updated: YYYY-MM-DD HH:MM ET
@@ -192,7 +194,7 @@ Write (create/overwrite) `position-notes.md` in the connected notes folder — t
 (keep the most recent ~10 entries; trim older ones so the file doesn't grow unbounded)
 ```
 
-If the notes folder isn't accessible, don't fail silently — flag it clearly in Step 5 so the user can fix the connection before the next session.
+If `$CONFIG_DIR` (or the fallback folder) isn't writable, don't fail silently — flag it clearly in Step 5 so the user can fix the connection before the next session.
 
 ## Step 5 — Reporting
 
