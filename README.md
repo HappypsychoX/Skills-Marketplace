@@ -6,11 +6,11 @@ Each skill ships as its **own** plugin in its **own** repo so they can be instal
 
 ## Plugins
 
-| Plugin | Repo | Access | Description |
-| --- | --- | --- | --- |
-| `trading-agent` | [HappypsychoX/trading-agent](https://github.com/HappypsychoX/trading-agent) | Read + **write** | Autonomous Agentic-Account trader. Places trades via the Robinhood MCP with standing protective orders (stop-loss/take-profit), a tunable horizon bias, a leveraged/inverse ETF screen, and GitHub-backed risk parameters with a cross-session note. |
-| `trading-report` | [HappypsychoX/trading-report](https://github.com/HappypsychoX/trading-report) | **Read-only** | Reporting half. Reads Robinhood via MCP and publishes a portfolio snapshot (`data.json`) to the dashboard repo via the GitHub Contents API, driving a GitHub Pages dashboard. Never places or mutates orders. |
-| `independent-review` | [HappypsychoX/independent-review](https://github.com/HappypsychoX/independent-review) | **Read-only** | Codebase reviewer. Analyzes code quality, architecture, performance, security, testing, and documentation, then produces a structured findings report ranked by severity and ROI. Never modifies, refactors, or rewrites the code. |
+| Plugin | Repo | Description |
+| --- | --- | --- |
+| `trading-agent` | [HappypsychoX/trading-agent](https://github.com/HappypsychoX/trading-agent) | Autonomous Agentic-Account trader. Places trades via the Robinhood MCP with standing protective orders (stop-loss/take-profit), a tunable horizon bias, a leveraged/inverse ETF screen, and GitHub-backed risk parameters with a cross-session note. |
+| `trading-report` | [HappypsychoX/trading-report](https://github.com/HappypsychoX/trading-report) | Reporting half. Reads Robinhood via MCP (read-only) and publishes a portfolio snapshot (`data.json`) to the dashboard repo via the GitHub Contents API, driving a GitHub Pages dashboard. Never places or mutates orders. |
+| `independent-review` | [HappypsychoX/independent-review](https://github.com/HappypsychoX/independent-review) | Codebase reviewer. Analyzes code quality, architecture, performance, security, testing, and documentation, then produces a structured findings report ranked by severity and ROI. Never modifies, refactors, or rewrites the code. |
 
 The two trading skills operate the same external trading system, scoped to the **Agentic Account only**. `trading-agent` is the only skill that trades; `trading-report` is strictly read-only against Robinhood. `independent-review` is unrelated to trading — a standalone read-only code reviewer.
 

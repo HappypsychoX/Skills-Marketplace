@@ -55,7 +55,6 @@
       <span class="kicker">Skill</span>
       <div class="h-titlerow">
         <h1 class="h-title">{{ skill.name }}</h1>
-        <span class="tag tag-outline">{{ skill.access }}</span>
       </div>
       <p class="h-desc">{{ skill.description }}</p>
       <div class="h-actions">
@@ -125,7 +124,7 @@ class Component extends DCLogic {
   }
 
   renderVals() {
-    return { skill: this.state.skill || { name: '', description: '', longDescription: '', triggers: '', configuration: '', requirements: [], install: '', usageTitle: '', usagePrompt: '', usageNote: '', access: '', githubUrl: '#', icon: null } };
+    return { skill: this.state.skill || { name: '', description: '', longDescription: '', triggers: '', configuration: '', requirements: [], install: '', usageTitle: '', usagePrompt: '', usageNote: '', githubUrl: '#', icon: null } };
   }
 }
 
