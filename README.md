@@ -8,8 +8,8 @@ Each skill ships as its **own** plugin so they can be installed independently. B
 
 | Plugin | Version | Access | Description |
 | --- | --- | --- | --- |
-| [`trading-agent`](plugins/trading-agent/skills/trading-agent/SKILL.md) | 2.0.1 | Read + **write** | Autonomous Agentic-Account trader. Places trades via the Robinhood MCP with standing protective orders (stop-loss/take-profit), a tunable horizon bias, a leveraged/inverse ETF screen, and GitHub-backed risk parameters with a cross-session note. |
-| [`trading-report`](plugins/trading-report/skills/trading-report/SKILL.md) | 2.0.1 | **Read-only** | Reporting half. Reads Robinhood via MCP and publishes a portfolio snapshot (`data.json`) to the Trading-Dashboard repo via the GitHub Contents API, driving a GitHub Pages dashboard. Never places or mutates orders. |
+| [`trading-agent`](plugins/trading-agent/skills/trading-agent/SKILL.md) | [2.0.1](plugins/trading-agent/skills/trading-agent/CHANGELOG.md) | Read + **write** | Autonomous Agentic-Account trader. Places trades via the Robinhood MCP with standing protective orders (stop-loss/take-profit), a tunable horizon bias, a leveraged/inverse ETF screen, and GitHub-backed risk parameters with a cross-session note. |
+| [`trading-report`](plugins/trading-report/skills/trading-report/SKILL.md) | [2.0.1](plugins/trading-report/skills/trading-report/CHANGELOG.md) | **Read-only** | Reporting half. Reads Robinhood via MCP and publishes a portfolio snapshot (`data.json`) to the Trading-Dashboard repo via the GitHub Contents API, driving a GitHub Pages dashboard. Never places or mutates orders. |
 
 Both skills operate the same external trading system, scoped to the **Agentic Account only**. `trading-agent` is the only skill that trades; `trading-report` is strictly read-only against Robinhood.
 
