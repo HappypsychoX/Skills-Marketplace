@@ -6,8 +6,33 @@
 <title>Skill — Skills Marketplace</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="./support.js"></script>
+<style>
+  /* Boot status + static fallback. Outside the DC template element (the DC runtime
+     ignores them) and self-contained, so they render even if the DS CSS or the
+     React CDN never loads. */
+  #boot-status { max-width: 860px; margin: 0 auto; padding: 28px clamp(20px, 5vw, 72px); font: 14px/1.5 system-ui, -apple-system, sans-serif; color: #6b6b6b; }
+  /* Paints its own opaque light surface + full height, so it stays readable even if
+     the design-system CSS never loaded and regardless of the viewer's color scheme. */
+  #fallback { max-width: 860px; min-height: 100vh; box-sizing: border-box; margin: 0 auto; padding: 40px clamp(20px, 5vw, 72px); background: #ffffff; font-family: system-ui, -apple-system, sans-serif; color: #1a1a1a; }
+  #fallback h1 { font-size: 30px; margin: 0 0 10px; letter-spacing: -0.01em; }
+  #fallback .fb-note { color: #6b6b6b; margin: 0 0 8px; font-size: 15px; line-height: 1.55; max-width: 62ch; }
+  #fallback .fb-install { margin: 24px 0 8px; font-size: 15px; line-height: 1.55; }
+  #fallback .fb-skill { padding: 22px 0; border-top: 1px solid #dcdcdc; }
+  #fallback .fb-skill h2 { font-size: 19px; margin: 0 0 6px; }
+  #fallback .fb-skill p { margin: 0 0 12px; color: #333; line-height: 1.55; max-width: 62ch; }
+  #fallback code { font-family: ui-monospace, Menlo, monospace; font-size: 13px; background: rgba(0,0,0,.06); padding: 2px 6px; border-radius: 3px; }
+  #fallback a { color: #b3491f; }
+</style>
+<noscript>
+  <style>
+    x-dc { display: none !important; }
+    #boot-status { display: none !important; }
+    #fallback { display: block !important; }
+  </style>
+</noscript>
 </head>
 <body>
+<div id="boot-status" role="status" aria-live="polite">Loading skill…</div>
 <x-dc>
 <helmet>
   <link rel="stylesheet" href="_ds/modernist-82fdc633-58c0-4a96-bede-ad6248c83922/styles.css">
@@ -105,6 +130,55 @@
 </div>
 
 </x-dc>
+<!-- Static fallback — shown when JS is off (<noscript> CSS above) or when the
+     runtime never mounts (watchdog below). Per-skill detail needs JS to read the
+     ?skill= param, so this lists every skill with its repo. Keep in sync with
+     skills-data.js / marketplace.json. -->
+<div id="fallback" hidden>
+  <h1>Skills Marketplace</h1>
+  <p class="fb-note">Per-skill details need JavaScript. Here is every skill with a link to its repo — or browse the <a href="Landing.dc.html">marketplace home</a>.</p>
+  <p class="fb-install">First add the marketplace: <code>/plugin marketplace add HappypsychoX/Skills-Marketplace</code></p>
+  <div class="fb-skill">
+    <h2>Trading Agent</h2>
+    <p>Autonomously trade the Agentic Account via the Robinhood MCP, with standing protective orders, a tunable horizon bias, and a leveraged-ETF screen.</p>
+    <p><code>/plugin install trading-agent@skills-marketplace</code> · <a href="https://github.com/HappypsychoX/trading-agent">HappypsychoX/trading-agent</a></p>
+  </div>
+  <div class="fb-skill">
+    <h2>Trading Report</h2>
+    <p>Read Robinhood via MCP and publish a daily portfolio snapshot to the dashboard repo through the GitHub Contents API. Never places or mutates orders.</p>
+    <p><code>/plugin install trading-report@skills-marketplace</code> · <a href="https://github.com/HappypsychoX/trading-report">HappypsychoX/trading-report</a></p>
+  </div>
+  <div class="fb-skill">
+    <h2>Independent Review</h2>
+    <p>Review a codebase across quality, architecture, performance, security, testing, and documentation, producing a findings report ranked by severity and ROI. Never edits code.</p>
+    <p><code>/plugin install independent-review@skills-marketplace</code> · <a href="https://github.com/HappypsychoX/independent-review">HappypsychoX/independent-review</a></p>
+  </div>
+</div>
+<script>
+  // Watchdog: reveal the static fallback if the DC runtime never mounts #dc-root
+  // (React CDN blocked, boot error); otherwise drop the loading line on success.
+  (function () {
+    var GIVE_UP_MS = 6000, HARD_STOP_MS = 30000;
+    var start = Date.now();
+    function booted() {
+      var root = document.getElementById('dc-root');
+      return !!(root && root.firstChild);
+    }
+    var iv = setInterval(function () {
+      var status = document.getElementById('boot-status');
+      var fallback = document.getElementById('fallback');
+      if (booted()) {
+        if (status) status.remove();
+        if (fallback) fallback.hidden = true;
+        clearInterval(iv);
+      } else if (Date.now() - start > GIVE_UP_MS) {
+        if (status) status.remove();
+        if (fallback) fallback.hidden = false;
+        if (Date.now() - start > HARD_STOP_MS) clearInterval(iv);
+      }
+    }, 120);
+  })();
+</script>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
   state = { skill: null };
