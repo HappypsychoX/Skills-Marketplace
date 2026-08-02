@@ -19,6 +19,14 @@
         "repo": "HappypsychoX/trading-report"
       },
       "description": "Read-only Agentic-Account portfolio reporter that publishes a dashboard snapshot to the Trading-Dashboard repo."
+    },
+    {
+      "name": "independent-review",
+      "source": {
+        "source": "github",
+        "repo": "HappypsychoX/independent-review"
+      },
+      "description": "Read-only codebase reviewer that analyzes code quality, architecture, performance, security, testing, and documentation, then produces a structured findings report ranked by severity and ROI. Never modifies the code."
     }
   ],
   "renames": {
