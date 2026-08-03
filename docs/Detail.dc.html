@@ -71,6 +71,15 @@
     .req-list li { position: relative; padding-left: 22px; font-size: 15.5px; line-height: 27px; color: color-mix(in srgb, var(--color-text) 80%, transparent); margin: 0 0 10px; }
     .req-list li:last-child { margin-bottom: 0; }
     .req-list li::before { content: ""; position: absolute; left: 0; top: 11px; width: 7px; height: 7px; background: var(--color-accent-700); }
+    .cl-entry { max-width: 62ch; }
+    .cl-head { display: flex; align-items: baseline; gap: 12px; margin: 0 0 14px; }
+    .cl-version { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 18px; color: var(--color-accent-700); letter-spacing: -0.01em; }
+    .cl-date { font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+    .cl-list { list-style: none; padding: 0; margin: 0; }
+    .cl-list li { font-size: 15.5px; line-height: 27px; color: color-mix(in srgb, var(--color-text) 80%, transparent); margin: 0 0 14px; }
+    .cl-list li:last-child { margin-bottom: 0; }
+    .cl-type { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent-700); border: 1px solid var(--color-divider); padding: 1px 7px; margin-right: 10px; vertical-align: 2px; }
+    .cl-more { margin: 22px 0 0; font-size: 14px; }
     footer { padding: 32px 0 48px; font-size: 13px; color: color-mix(in srgb, var(--color-text) 70%, transparent); }
   </style>
 </helmet>
@@ -138,6 +147,24 @@
     <blockquote class="quote-block">{{ skill.usagePrompt }}</blockquote>
     <p>{{ skill.usageNote }}</p>
   </section>
+  <sc-if value="{{ skill.changelog }}">
+    <hr class="rule2">
+    <section class="section">
+      <h2 class="section-title">Changelog</h2>
+      <div class="cl-entry">
+        <div class="cl-head">
+          <span class="cl-version">v{{ skill.changelog.version }}</span>
+          <span class="cl-date">{{ skill.changelog.date }}</span>
+        </div>
+        <ul class="cl-list">
+          <sc-for list="{{ skill.changelog.changes }}" as="change" hint-placeholder-count="2">
+            <li><span class="cl-type">{{ change.type }}</span>{{ change.text }}</li>
+          </sc-for>
+        </ul>
+      </div>
+      <p class="cl-more"><a href="{{ skill.changelogUrl }}" target="_blank" rel="noopener">Full changelog on GitHub →</a></p>
+    </section>
+  </sc-if>
 </div>
 <div class="wrap">
   <footer>Part of the <a href="Landing.dc.html">Skills Marketplace</a> — installed independently via <code>/plugin</code>. This skill lives in its own repo.</footer>
@@ -156,17 +183,17 @@
     <h2>Trading Agent</h2>
     <p class="fb-disclaimer"><strong>Please read</strong> — Under active development, with frequent breaking changes between versions. The only skill that places live trades: it acts on a real brokerage account and can lose real money. Use at your own risk; not financial advice.</p>
     <p>Autonomously trade the Agentic Account via the Robinhood MCP, with standing protective orders, a tunable horizon bias, and a leveraged-ETF screen.</p>
-    <p><code>/plugin install trading-agent@skills-marketplace</code> · <a href="https://github.com/HappypsychoX/trading-agent">HappypsychoX/trading-agent</a></p>
+    <p><code>/plugin install trading-agent@skills-marketplace</code> · <a href="https://github.com/HappypsychoX/trading-agent">HappypsychoX/trading-agent</a> · <a href="https://github.com/HappypsychoX/trading-agent/blob/main/skills/trading-agent/CHANGELOG.md">Changelog</a></p>
   </div>
   <div class="fb-skill">
     <h2>Trading Report</h2>
     <p>Read Robinhood via MCP and publish a daily portfolio snapshot to the dashboard repo through the GitHub Contents API. Never places or mutates orders.</p>
-    <p><code>/plugin install trading-report@skills-marketplace</code> · <a href="https://github.com/HappypsychoX/trading-report">HappypsychoX/trading-report</a></p>
+    <p><code>/plugin install trading-report@skills-marketplace</code> · <a href="https://github.com/HappypsychoX/trading-report">HappypsychoX/trading-report</a> · <a href="https://github.com/HappypsychoX/trading-report/blob/main/skills/trading-report/CHANGELOG.md">Changelog</a></p>
   </div>
   <div class="fb-skill">
     <h2>Independent Review</h2>
     <p>Review a codebase across quality, architecture, performance, security, testing, and documentation, producing a findings report ranked by severity and ROI. Never edits code.</p>
-    <p><code>/plugin install independent-review@skills-marketplace</code> · <a href="https://github.com/HappypsychoX/independent-review">HappypsychoX/independent-review</a></p>
+    <p><code>/plugin install independent-review@skills-marketplace</code> · <a href="https://github.com/HappypsychoX/independent-review">HappypsychoX/independent-review</a> · <a href="https://github.com/HappypsychoX/independent-review/blob/main/skills/independent-review/CHANGELOG.md">Changelog</a></p>
   </div>
 </div>
 <script>
@@ -209,11 +236,11 @@ class Component extends DCLogic {
       { width: 26, height: 26, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' },
       shapes.map((s, i) => React.createElement(s.tag, { key: i, ...s.attrs }))
     );
-    this.setState({ skill: { ...skill, icon, githubUrl: 'https://github.com/' + skill.repo } });
+    this.setState({ skill: { ...skill, icon, githubUrl: 'https://github.com/' + skill.repo, changelogUrl: 'https://github.com/' + skill.repo + '/blob/main/skills/' + skill.id + '/CHANGELOG.md' } });
   }
 
   renderVals() {
-    return { skill: this.state.skill || { name: '', description: '', longDescription: '', triggers: '', configuration: '', requirements: [], install: '', usageTitle: '', usagePrompt: '', usageNote: '', githubUrl: '#', icon: null } };
+    return { skill: this.state.skill || { name: '', description: '', longDescription: '', triggers: '', configuration: '', requirements: [], install: '', usageTitle: '', usagePrompt: '', usageNote: '', changelog: null, changelogUrl: '#', githubUrl: '#', icon: null } };
   }
 }
 
