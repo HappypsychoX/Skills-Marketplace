@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-// Validates that the plugin metadata across the marketplace manifest, the docs
+// Validates that the plugin metadata across the marketplace manifests, the docs
 // site data, and the pages' static fallback lists agree, so a rename or
-// added/removed plugin can't silently drift (see issues #28, #27):
-//   .claude-plugin/marketplace.json  -> plugins[] (name, source.repo)  — what /plugin installs
+// added/removed plugin can't silently drift (see issues #28, #27, #39):
+//   .claude-plugin/marketplace.json  -> plugins[] (name, source.repo)  — what /plugin installs (Claude Code)
+//   .agents/plugins/marketplace.json -> plugins[] (name, source.url)   — what `codex plugin marketplace add` installs
 //   docs/skills-data.js              -> SKILLS   (id, repo)            — what the Pages site lists
 //   docs/Landing.dc.html, Detail.dc.html -> #fallback block           — the JS-free fallback list
 // The README table is intentionally left to human review.
@@ -19,12 +20,35 @@ import path from 'node:path';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = path.join(root, '.claude-plugin', 'marketplace.json');
+const codexManifestPath = path.join(root, '.agents', 'plugins', 'marketplace.json');
 const dataPath = path.join(root, 'docs', 'skills-data.js');
 
 // --- Manifest: name -> repo ---
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const manifestRepos = new Map(
   (manifest.plugins ?? []).map((p) => [p.name, p.source?.repo])
+);
+
+// --- Codex manifest: name -> repo (derived from the git URL) ---
+// The Codex marketplace (.agents/plugins/marketplace.json) is the OpenAI-side
+// mirror of the Claude manifest. It carries the same plugin set, but each entry
+// uses a git-backed source ({ source:"url", url:"https://github.com/<owner>/<repo>.git" })
+// instead of Claude's { source:"github", repo:"<owner>/<repo>" }. Normalize the
+// URL back to "<owner>/<repo>" so it can be compared against the Claude manifest.
+const codexManifest = JSON.parse(await readFile(codexManifestPath, 'utf8'));
+const CODEX_ALLOWED_CATEGORIES = new Set([
+  'Productivity', 'Developer Tools', 'Finance', 'Communication',
+  'Business & Operations', 'Data & Analytics', 'Creativity',
+  'Education & Research', 'Security', 'Travel', 'Infrastructure', 'Other',
+]);
+const CODEX_INSTALLATION = new Set(['AVAILABLE', 'INSTALLED_BY_DEFAULT', 'NOT_AVAILABLE']);
+const CODEX_AUTHENTICATION = new Set(['ON_INSTALL', 'ON_USE']);
+const repoFromGitUrl = (url) =>
+  typeof url === 'string'
+    ? url.replace(/^https?:\/\/github\.com\//, '').replace(/\.git$/, '') || undefined
+    : undefined;
+const codexRepos = new Map(
+  (codexManifest.plugins ?? []).map((p) => [p.name, repoFromGitUrl(p.source?.url)])
 );
 
 // --- Site data: id -> repo (imported as ESM via a data: URL) ---
@@ -61,6 +85,42 @@ for (const [name, repo] of manifestRepos) {
 }
 for (const [id, repo] of siteRepos) {
   if (!repo) problems.push(`Skill "${id}" in docs/skills-data.js has no repo.`);
+}
+
+// --- Codex manifest must mirror the Claude manifest (same set + same repos) ---
+for (const name of manifestRepos.keys()) {
+  if (!codexRepos.has(name)) {
+    problems.push(`Plugin "${name}" is in .claude-plugin/marketplace.json but missing from .agents/plugins/marketplace.json.`);
+  }
+}
+for (const name of codexRepos.keys()) {
+  if (!manifestRepos.has(name)) {
+    problems.push(`Plugin "${name}" is in .agents/plugins/marketplace.json but missing from .claude-plugin/marketplace.json.`);
+  }
+}
+for (const [name, repo] of manifestRepos) {
+  if (codexRepos.has(name) && codexRepos.get(name) !== repo) {
+    problems.push(
+      `Repo mismatch for "${name}": .claude-plugin/marketplace.json has "${repo}", .agents/plugins/marketplace.json resolves to "${codexRepos.get(name)}".`
+    );
+  }
+}
+
+// Validate the Codex-specific required fields on each entry.
+for (const p of codexManifest.plugins ?? []) {
+  const where = `Codex plugin "${p.name}" in .agents/plugins/marketplace.json`;
+  if (!repoFromGitUrl(p.source?.url)) {
+    problems.push(`${where} has no git-backed source.url (expected https://github.com/<owner>/<repo>.git).`);
+  }
+  if (!CODEX_INSTALLATION.has(p.policy?.installation)) {
+    problems.push(`${where} has an invalid policy.installation ("${p.policy?.installation}"); expected one of ${[...CODEX_INSTALLATION].join(', ')}.`);
+  }
+  if (!CODEX_AUTHENTICATION.has(p.policy?.authentication)) {
+    problems.push(`${where} has an invalid policy.authentication ("${p.policy?.authentication}"); expected one of ${[...CODEX_AUTHENTICATION].join(', ')}.`);
+  }
+  if (!CODEX_ALLOWED_CATEGORIES.has(p.category)) {
+    problems.push(`${where} has an unknown category ("${p.category}").`);
+  }
 }
 
 // --- Static fallback lists (docs/Landing.dc.html, docs/Detail.dc.html) ---
@@ -109,4 +169,4 @@ if (problems.length > 0) {
 }
 
 const names = [...manifestRepos.keys()].sort();
-console.log(`Metadata OK — ${names.length} plugin(s) consistent across manifest, site data, and the static fallback lists in Landing.dc.html / Detail.dc.html: ${names.join(', ')}.`);
+console.log(`Metadata OK — ${names.length} plugin(s) consistent across the Claude manifest, the Codex manifest, the site data, and the static fallback lists in Landing.dc.html / Detail.dc.html: ${names.join(', ')}.`);

@@ -1,0 +1,47 @@
+{
+  "name": "skills-marketplace",
+  "interface": {
+    "displayName": "Skills Marketplace"
+  },
+  "plugins": [
+    {
+      "name": "trading-agent",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/HappypsychoX/trading-agent.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Finance"
+    },
+    {
+      "name": "trading-report",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/HappypsychoX/trading-report.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Finance"
+    },
+    {
+      "name": "independent-review",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/HappypsychoX/independent-review.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
