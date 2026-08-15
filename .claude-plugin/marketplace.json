@@ -27,6 +27,14 @@
         "repo": "HappypsychoX/independent-review"
       },
       "description": "Read-only codebase reviewer that analyzes code quality, architecture, performance, security, testing, and documentation, then produces a structured findings report ranked by severity and ROI. Never modifies the code."
+    },
+    {
+      "name": "excel-vba-mcp",
+      "source": {
+        "source": "github",
+        "repo": "HappypsychoX/excel-vba-mcp"
+      },
+      "description": "A bundled read-only MCP server that connects Claude to Microsoft Excel and VBA. Phase 1 ships ping and get_version tools; Excel/COM/VBA capabilities are deferred to later phases."
     }
   ],
   "renames": {

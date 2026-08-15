@@ -1,6 +1,6 @@
 // Real content for the Skills Marketplace site. Each entry mirrors a plugin in
 // .claude-plugin/marketplace.json — its own standalone repo, installed via /plugin.
-export const CATEGORIES = ["Trading", "Development"];
+export const CATEGORIES = ["Trading", "Development", "Productivity"];
 
 export const SKILLS = [
   {
@@ -87,6 +87,27 @@ export const SKILLS = [
       ]
     },
     related: ["trading-agent", "trading-report"]
+  },
+  {
+    id: "excel-vba-mcp",
+    name: "Excel VBA MCP",
+    category: "Productivity",
+    icon: "table",
+    repo: "HappypsychoX/excel-vba-mcp",
+    description: "Connect Claude to a bundled read-only Excel/VBA MCP server.",
+    longDescription: "Excel VBA MCP bundles a local Model Context Protocol server that lets Claude work with Microsoft Excel and VBA. Phase 1 ships two read-only tools — ping, which confirms the server is responsive, and get_version, which reports the running build — built on .NET 10 with the official ModelContextProtocol C# SDK over stdio transport. Excel COM interop, workbook operations, and VBA editing are deferred to later phases.",
+    install: "/plugin install excel-vba-mcp@skills-marketplace",
+    triggers: "Kicks in when you want to check whether the Excel VBA MCP server is available or report its version — anything that exercises the bundled MCP server's ping or get_version tools.",
+    configuration: "None beyond installation. The plugin wires up a local MCP server (a bundled win-x64 executable) via its .mcp.json; it takes no secrets and no runtime config file. Phase 1 exposes only read-only tools.",
+    requirements: [
+      "Windows x64 — the plugin bundles a prebuilt win-x64 MCP server executable.",
+      "An MCP-capable client (Claude Code or Codex) to connect to the server.",
+      "Read-only in Phase 1 — no Excel automation, workbook writes, or VBA editing yet."
+    ],
+    usageTitle: "Ask Claude to check the Excel VBA MCP server",
+    usagePrompt: "“Check whether the Excel VBA MCP server is available and report its version.”",
+    usageNote: "Phase 1 is read-only: it only confirms the server is responsive and reports its build. Excel, COM, and VBA capabilities are deferred to later phases.",
+    related: ["independent-review"]
   }
 ];
 
@@ -104,5 +125,11 @@ export const ICON_SHAPES = {
   shieldCheck: [
     { tag: "path", attrs: { d: "M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z" } },
     { tag: "polyline", attrs: { points: "9 12 11 14 15 9.5" } }
+  ],
+  table: [
+    { tag: "rect", attrs: { x: 3, y: 4, width: 18, height: 16, rx: 1 } },
+    { tag: "line", attrs: { x1: 3, y1: 9, x2: 21, y2: 9 } },
+    { tag: "line", attrs: { x1: 3, y1: 14, x2: 21, y2: 14 } },
+    { tag: "line", attrs: { x1: 9, y1: 9, x2: 9, y2: 20 } }
   ]
 };

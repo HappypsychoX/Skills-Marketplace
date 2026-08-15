@@ -11,8 +11,9 @@ Each skill ships as its **own** plugin in its **own** repo so they can be instal
 | `trading-agent` | [HappypsychoX/trading-agent](https://github.com/HappypsychoX/trading-agent) | Autonomous Agentic-Account trader. Places trades via the Robinhood MCP with standing protective orders (stop-loss/take-profit), a tunable horizon bias, a leveraged/inverse ETF screen, and GitHub-backed risk parameters with a cross-session note. |
 | `trading-report` | [HappypsychoX/trading-report](https://github.com/HappypsychoX/trading-report) | Reporting half. Reads Robinhood via MCP (read-only) and publishes a portfolio snapshot (`data.json`) to the dashboard repo via the GitHub Contents API, driving a GitHub Pages dashboard. Never places or mutates orders. |
 | `independent-review` | [HappypsychoX/independent-review](https://github.com/HappypsychoX/independent-review) | Codebase reviewer. Analyzes code quality, architecture, performance, security, testing, and documentation, then produces a structured findings report ranked by severity and ROI. Never modifies, refactors, or rewrites the code. |
+| `excel-vba-mcp` | [HappypsychoX/excel-vba-mcp](https://github.com/HappypsychoX/excel-vba-mcp) | Bundled read-only MCP server (not a `SKILL.md` skill) connecting Claude to Microsoft Excel and VBA. Phase 1 ships `ping` and `get_version` tools built on .NET 10; Excel/COM/VBA capabilities are deferred to later phases. |
 
-The two trading skills operate the same external trading system, scoped to the **Agentic Account only**. `trading-agent` is the only skill that trades; `trading-report` is strictly read-only against Robinhood. `independent-review` is unrelated to trading — a standalone read-only code reviewer.
+The two trading skills operate the same external trading system, scoped to the **Agentic Account only**. `trading-agent` is the only skill that trades; `trading-report` is strictly read-only against Robinhood. `independent-review` is unrelated to trading — a standalone read-only code reviewer. `excel-vba-mcp` is unlike the others — it packages a local MCP server executable rather than a `SKILL.md` skill.
 
 ## Install
 
@@ -21,6 +22,7 @@ The two trading skills operate the same external trading system, scoped to the *
 /plugin install trading-agent@skills-marketplace
 /plugin install trading-report@skills-marketplace
 /plugin install independent-review@skills-marketplace
+/plugin install excel-vba-mcp@skills-marketplace
 ```
 
 ## Site
