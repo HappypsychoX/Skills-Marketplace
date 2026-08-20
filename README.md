@@ -12,8 +12,9 @@ Each skill ships as its **own** plugin in its **own** repo so they can be instal
 | `trading-report` | [HappypsychoX/trading-report](https://github.com/HappypsychoX/trading-report) | Reporting half. Reads Robinhood via MCP (read-only) and publishes a portfolio snapshot (`data.json`) to the dashboard repo via the GitHub Contents API, driving a GitHub Pages dashboard. Never places or mutates orders. |
 | `independent-review` | [HappypsychoX/independent-review](https://github.com/HappypsychoX/independent-review) | Codebase reviewer. Analyzes code quality, architecture, performance, security, testing, and documentation, then produces a structured findings report ranked by severity and ROI. Never modifies, refactors, or rewrites the code. |
 | `excel-vba-mcp` | [HappypsychoX/excel-vba-mcp](https://github.com/HappypsychoX/excel-vba-mcp) | Bundled read-only MCP server (not a `SKILL.md` skill) connecting Claude to Microsoft Excel and VBA. Phase 1 ships `ping` and `get_version` tools built on .NET 10; Excel/COM/VBA capabilities are deferred to later phases. |
+| `grill-me` | [HappypsychoX/grill-me](https://github.com/HappypsychoX/grill-me) | Interviews you relentlessly about a plan or design, one question at a time with a recommended answer attached, walking down each branch of the decision tree until reaching shared understanding. |
 
-The two trading skills operate the same external trading system, scoped to the **Agentic Account only**. `trading-agent` is the only skill that trades; `trading-report` is strictly read-only against Robinhood. `independent-review` is unrelated to trading — a standalone read-only code reviewer. `excel-vba-mcp` is unlike the others — it packages a local MCP server executable rather than a `SKILL.md` skill.
+The two trading skills operate the same external trading system, scoped to the **Agentic Account only**. `trading-agent` is the only skill that trades; `trading-report` is strictly read-only against Robinhood. `independent-review` is unrelated to trading — a standalone read-only code reviewer. `excel-vba-mcp` is unlike the others — it packages a local MCP server executable rather than a `SKILL.md` skill. `grill-me` is config-free like `independent-review`, but focused on interrogating plans and designs rather than reviewing existing code.
 
 ## Install
 
@@ -23,6 +24,7 @@ The two trading skills operate the same external trading system, scoped to the *
 /plugin install trading-report@skills-marketplace
 /plugin install independent-review@skills-marketplace
 /plugin install excel-vba-mcp@skills-marketplace
+/plugin install grill-me@skills-marketplace
 ```
 
 ## Site
@@ -33,7 +35,7 @@ A browsable, static marketplace site lives under [`docs/`](docs/) — a landing 
 
 ## Configuration
 
-`independent-review` needs no configuration — it reviews whatever codebase you point it at and takes no secrets or runtime config file.
+`independent-review` and `grill-me` need no configuration — `independent-review` reviews whatever codebase you point it at, and `grill-me` interrogates whatever plan or design you bring it; neither takes secrets or a runtime config file.
 
 The two **trading** skills read every environment-specific value — the GitHub token, the dashboard repo, the in-repo file paths, and the account scope — from a single runtime config file, **`trading-config.json`**, kept **outside this repo** and never committed. To set up:
 
@@ -80,5 +82,6 @@ Each skill also keeps **its own** [Keep a Changelog](https://keepachangelog.com/
 - [`trading-agent` changelog](https://github.com/HappypsychoX/trading-agent/blob/main/skills/trading-agent/CHANGELOG.md)
 - [`trading-report` changelog](https://github.com/HappypsychoX/trading-report/blob/main/skills/trading-report/CHANGELOG.md)
 - [`independent-review` changelog](https://github.com/HappypsychoX/independent-review/blob/main/skills/independent-review/CHANGELOG.md)
+- [`grill-me` changelog](https://github.com/HappypsychoX/grill-me/blob/main/skills/grill-me/CHANGELOG.md)
 
 See [CLAUDE.md](CLAUDE.md) for the full conventions.

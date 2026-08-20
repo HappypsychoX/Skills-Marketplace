@@ -55,6 +55,19 @@
         "authentication": "ON_USE"
       },
       "category": "Productivity"
+    },
+    {
+      "name": "grill-me",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/HappypsychoX/grill-me.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
     }
   ]
 }

@@ -35,6 +35,14 @@
         "repo": "HappypsychoX/excel-vba-mcp"
       },
       "description": "A bundled read-only MCP server that connects Claude to Microsoft Excel and VBA. Phase 1 ships ping and get_version tools; Excel/COM/VBA capabilities are deferred to later phases."
+    },
+    {
+      "name": "grill-me",
+      "source": {
+        "source": "github",
+        "repo": "HappypsychoX/grill-me"
+      },
+      "description": "Interviews you relentlessly about a plan or design, one question at a time with a recommended answer attached, until reaching shared understanding."
     }
   ],
   "renames": {

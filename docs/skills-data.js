@@ -108,6 +108,32 @@ export const SKILLS = [
     usagePrompt: "“Check whether the Excel VBA MCP server is available and report its version.”",
     usageNote: "Phase 1 is read-only: it only confirms the server is responsive and reports its build. Excel, COM, and VBA capabilities are deferred to later phases.",
     related: ["independent-review"]
+  },
+  {
+    id: "grill-me",
+    name: "Grill Me",
+    category: "Productivity",
+    icon: "helpCircle",
+    repo: "HappypsychoX/grill-me",
+    description: "Interview you relentlessly about a plan or design, one question at a time.",
+    longDescription: "Grill Me interviews you relentlessly about a plan or design until you and Claude reach shared understanding. It walks down each branch of the decision tree one question at a time, resolving dependencies between decisions before moving on, and always proposes its own recommended answer so you can approve or redirect instead of starting from a blank slate. When a question is answerable by exploring the codebase, it explores instead of asking.",
+    install: "/plugin install grill-me@skills-marketplace",
+    triggers: "Kicks in when you ask to stress-test a plan, get grilled on a design, or mention “grill me” — anything where you want your plan interrogated branch by branch until it's airtight.",
+    configuration: "None. It's config-free — no secrets, no runtime config file, no MCP required.",
+    requirements: [
+      "Just a plan or design to interrogate — no MCP, token, or account scope required."
+    ],
+    usageTitle: "Ask Claude to grill you on a plan",
+    usagePrompt: "“Grill me on this migration plan until we've nailed down every decision.”",
+    usageNote: "Config-free and takes no action against any external system — it only asks questions (and explores your codebase when a question is answerable that way).",
+    changelog: {
+      version: "1.0.0",
+      date: "2026-08-20",
+      changes: [
+        { type: "Added", text: "Initial release. Interviews the user relentlessly about a plan or design, one question at a time, proposing a recommended answer for each and resolving dependencies between decisions until reaching shared understanding. Prefers exploring the codebase over asking when a question is answerable that way." }
+      ]
+    },
+    related: ["independent-review"]
   }
 ];
 
@@ -131,5 +157,10 @@ export const ICON_SHAPES = {
     { tag: "line", attrs: { x1: 3, y1: 9, x2: 21, y2: 9 } },
     { tag: "line", attrs: { x1: 3, y1: 14, x2: 21, y2: 14 } },
     { tag: "line", attrs: { x1: 9, y1: 9, x2: 9, y2: 20 } }
+  ],
+  helpCircle: [
+    { tag: "circle", attrs: { cx: 12, cy: 12, r: 9 } },
+    { tag: "path", attrs: { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" } },
+    { tag: "line", attrs: { x1: 12, y1: 17, x2: 12.01, y2: 17 } }
   ]
 };
